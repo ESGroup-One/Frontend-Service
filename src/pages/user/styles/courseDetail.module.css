@@ -1,0 +1,321 @@
+.courseDetailPage {
+  min-height: 100vh;
+  background-color: #fff;
+  padding: 0;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.courseContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: white;
+}
+
+.headerSection {
+  padding: 20px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: white;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 100%;
+}
+
+.collegeLogo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 50px;
+  flex-shrink: 0;
+}
+
+.collegeName {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.courseTitle {
+  font-size: 14px;
+  color: #475569;
+  font-weight: 500;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .headerSection {
+    padding: 24px 20px;
+  }
+
+  .headerContent {
+    gap: 16px;
+  }
+
+  .collegeLogo {
+    width: 50px;
+    height: 50px;
+  } 
+}
+
+@media (max-width: 480px) {
+  .headerSection {
+    padding: 20px 16px;
+  }
+
+  .headerContent {
+    gap: 12px;
+  }
+
+  .collegeLogo {
+    width: 45px;
+    height: 45px;
+  }
+
+}
+
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  min-height: 600px;
+}
+
+@media (min-width: 1024px) {
+  .twoColumnLayout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.leftColumn {
+  padding: 10px 0px;
+  border-right: none;
+}
+
+@media (min-width: 1024px) {
+  .leftColumn {
+    border-right: 1px solid #e2e8f0;
+  }
+}
+
+.contentSection {
+  margin-bottom: 40px;
+}
+
+.contentSection:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.descriptionText {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.criteriaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.criteriaItem {
+  font-size: 14px;
+  display: flex;
+  align-items: flex-start;
+  color: #475569;
+  padding: 4px 0;
+}
+
+.criteriaItem:last-child {
+  margin-bottom: 0;
+}
+
+.iconCheck {
+  color: #10b981;
+  margin-right: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.iconPlus {
+  color: #3b82f6;
+  margin-right: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rightColumn {
+  padding: 32px 40px;
+  background: #f8fafc;
+}
+
+@media (min-width: 1024px) {
+  .rightColumn {
+    background: white;
+  }
+}
+
+.applySection {
+  margin-bottom: 24px;
+}
+
+.applyButton {
+  width: 100%;
+  padding: 6px 30px;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 24px 0;
+}
+
+.sidebarSection {
+  margin-bottom: 24px;
+}
+
+.sidebarSection:last-child {
+  margin-bottom: 0;
+}
+
+.sidebarTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.seatAvailabilityDetails {
+  margin-bottom: 16px;
+}
+
+.seatText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.seatText strong {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.progressBarContainer {
+  width: 100%;
+  background-color: #60a5fa;
+  border-radius: 8px;
+  height: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.govSeatsBar {
+  background-color: #2563eb;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: width 0.3s ease;
+}
+
+.selfFinancedBar {
+  background-color: #60a5fa;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: width 0.3s ease;
+}
+
+.dateTable {
+  background: white;
+  padding: 0;
+}
+
+.dateRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: 12px;
+}
+
+.dateRow:last-child {
+  border-bottom: none;
+}
+
+.dateLabel {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.dateValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .headerSection {
+    padding: 24px 20px;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    padding: 24px 20px;
+  }
+
+  .collegeName {
+    font-size: 1.5rem;
+  }
+
+  .courseTitle {
+    font-size: 1.125rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerSection {
+    padding: 20px 16px;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    padding: 20px 16px;
+  }
+
+  .collegeName {
+    font-size: 1.25rem;
+  }
+
+  .applyButton {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+}

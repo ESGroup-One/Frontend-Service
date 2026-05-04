@@ -1,0 +1,66 @@
+.pageContainer {
+  padding: 32px;
+  background-color: #ffffff;
+}
+
+/* New wrapper for the college title and logo at the very top */
+.collegeTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  /* For the h2 inside */
+  font-weight: 600;
+  color: var(--text-dark);
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Reusing collegeLogo style, adjusted for the main title area */
+.collegeTitleWrapper .collegeLogo {
+  width: 40px;
+  /* Larger logo for the main title */
+  height: 40px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+/* Style for the h2 itself within the wrapper */
+.collegeTitle {
+  font-size: 1.5rem;
+  /* Adjust if needed to match image */
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  /* Remove default h2 margin */
+}
+
+
+/* Main Form Wrapper */
+.formWrapper {
+  background-color: var(--white);
+  padding: 32px;
+}
+
+/* Section Titles (e.g., "Eligibility Criteria") */
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+  padding-bottom: 8px;
+  /* border-bottom: 1px solid var(--border-color); */
+}
+
+/* Footer with terms and submit button */
+.formFooter {
+  padding-top: 24px;
+  margin-top: 32px;
+  border-top: 1px solid var(--border-color);
+}
+
+.termsText {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}

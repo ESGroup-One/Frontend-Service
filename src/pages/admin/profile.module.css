@@ -1,0 +1,245 @@
+ .headerSection {
+  padding: 20px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: white;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 100%;
+}
+
+.collegeLogo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 50px;
+  flex-shrink: 0;
+}
+
+.collegeName {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.courseTitle {
+  font-size: 14px;
+  color: #475569;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .headerSection {
+    padding: 24px 20px;
+  }
+
+  .headerContent {
+    gap: 16px;
+  }
+
+  .collegeLogo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .collegeName {
+    font-size: 1.5rem;
+  }
+
+  .courseTitle {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerSection {
+    padding: 20px 16px;
+  }
+
+  .headerContent {
+    gap: 12px;
+  }
+
+  .collegeLogo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .collegeName {
+    font-size: 1.25rem;
+  }
+}
+
+.pageContainer {
+  margin: 0;
+}
+
+.formWrapper {
+  padding-inline: 20px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.sectionSubtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+}
+
+.photoSection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+  margin-bottom: 10px;}
+
+.photoLabel {
+  flex: 1 1 250px;
+}
+
+.photoTitle {
+  font-weight: 500;
+  color: #111827;
+}
+
+.photoDesc {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.photoUpload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 2 1 300px;
+  flex-wrap: wrap;
+}
+
+.profileImg {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.replaceBox {
+  width: 80px;
+  height: 80px;
+  background-color: #f9fafb;
+  border: 1px dashed var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.replaceText {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.clickToReplace {
+  color: #4f46e5;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.detailsSection {
+  margin-bottom: 30px;
+  border-top: 1px solid var(--border-color);
+}
+
+.sub-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.subHeading {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.inputGroup input {
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+  color: #111827;
+  background-color: #f9fafb;
+  outline: none !important;
+}
+
+.inputGroup input:hover {
+    border: 1px solid var(--border-color) !important;
+    background-color: #f9fafb; /* Keep background consistent */
+    outline: none !important;
+    cursor: text; 
+}
+
+.inputGroup input:focus,
+.inputGroup input:active {
+    border: 1px solid var(--border-color) !important;
+    background-color: #f9fafb;
+    outline: none !important;
+    box-shadow: none !important; 
+}
+
+.formFooter {
+  padding-top: 24px;
+  margin-top: 32px;
+  border-top: 1px solid var(--border-color);
+}
+
+.termsText {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .photoSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .photoUpload {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .replaceText {
+    text-align: left;
+  }
+}

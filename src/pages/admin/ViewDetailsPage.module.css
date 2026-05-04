@@ -1,0 +1,290 @@
+.container {
+  padding: 20px;
+  background-color: #fff;
+  /* Light gray background for contrast */
+  min-height: 100vh;
+}
+
+.content {
+  margin-top: 20px;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Course Info Card --- */
+.courseHeader {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logoWrapper {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #F3F4F6;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.headerLogo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.collegeName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-light);
+  margin: 0 0 4px 0;
+  letter-spacing: 0.025em;
+}
+
+.courseName {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  /* text-dark */
+  margin: 0;
+}
+
+/* --- Top Bar & Filters --- */
+.topBar {
+  margin-bottom: 20px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+/* --- Section Headers --- */
+.section {
+  margin-bottom: 40px;
+}
+
+.tableHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 25px;
+  padding: 0 4px;
+}
+
+.sectionTitle {
+  font-size: 25px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 4px 0;
+}
+
+.resultCount {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.sortSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.sortSelect {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  outline: none;
+  font-size: 0.875rem;
+}
+
+/* --- Table Styling --- */
+.tableWrapper {
+  background: transparent;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1000px;
+}
+
+.table th {
+  text-align: left;
+  padding: 16px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+  background-color: #fff;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 16px 24px;
+  font-size: 14px;
+  color: #374151;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:focus td {
+  background-color: var(--light-gray);
+}
+
+/* --- Column Specifics --- */
+.mono {
+  color: var(--text-dark);
+  font-weight: 0.875rem;
+}
+
+.nameCell {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.meritScore {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* --- Badges --- */
+.badgeGrant {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badgeSelf {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* --- Actions & Buttons --- */
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortlistBtn {
+  padding: 6px 12px;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shortlistBtn:hover {
+  border-color: var(--primary-color-hover);
+  color: var(--primary-color);
+  background-color: #fff;
+}
+
+
+
+
+
+.shortlistedTag {
+  padding: 6px 12px;
+  background-color: #a4f4da;
+  /* Green-50 */
+  color: #059669;
+  /* Green-600 */
+  border: 1px solid #D1FAE5;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  cursor: default;
+}
+
+/* --- Empty State --- */
+.empty {
+  text-align: center;
+  padding: 60px !important;
+  color: var(--text-light) !important;
+  font-style: italic;
+}
+
+/* --- Pagination --- */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 0 4px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.pageControls {
+  display: flex;
+  gap: 6px;
+}
+
+.pageBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  background: white;
+  color: var(--text-light);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.pageBtn:hover:not(.activePage) {
+  background-color: #fff;
+  color: var(--text-dark);
+}
+
+.activePage {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}

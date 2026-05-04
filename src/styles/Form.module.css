@@ -1,0 +1,94 @@
+/* --- Main Grid and Form Groups --- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px; /* Increased gap for better spacing */
+  margin-bottom: 32px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  margin-bottom: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--dark-gray);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  color: var(--text-dark);
+  border: 1px solid var(--medium-gray);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  /* box-shadow: 0 0 0 3px var(--primary-color-light); */
+}
+
+/* --- Dynamic Field Styles (for Eligibility & Merit) --- */
+.dynamicRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dynamicRow .input {
+  flex: 1; /* Allow inputs to grow and fill space */
+}
+
+.colon {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--medium-gray);
+  cursor: pointer;
+  margin-top: 8px;
+  padding: 0;
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.removeButton:hover {
+  background-color: var(--danger-color-light);
+}
+
+/* --- Submit Button --- */
+.submitButton {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background-color: var(--primary-color-hover);
+}

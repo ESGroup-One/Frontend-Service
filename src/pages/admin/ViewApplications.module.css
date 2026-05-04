@@ -1,0 +1,165 @@
+.container {
+    padding: 20px;
+    background-color: #fff;
+    min-height: 100vh;
+}
+
+.content {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+/* Subheader Area */
+.subHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+.pageTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.collegeName {
+    font-weight: 400;
+    color: var(--text-light);
+    font-size: 16px;
+}
+
+.resultCount {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.sortSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sortLabel {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.sortSelect {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-dark);
+    background-color: white;
+    outline: none;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+/* Card Styling */
+.card {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.collegeLogo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.cardCollegeName {
+    font-size: 14px;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.courseTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.seatsInfo {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    flex-grow: 1;
+
+}
+
+.applicantBadge {
+    align-self: flex-start;
+    padding: 6px 16px;
+    border-radius: 18px;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: auto;
+
+}
+
+.applicantBadge:hover {
+    background-color: var(--primary-color-hover);
+    color: white;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 32px;
+}
+
+.pageBtn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #6B7280;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.activePage {
+    background-color: #4F46E5;
+    color: white;
+}
+
+.activePage:hover {
+    background-color: #4338ca;
+}

@@ -1,0 +1,592 @@
+/* Super Admin Dashboard Styles */
+.dashboard-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.stat-card:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 60%;
+  background-color: #e5e7eb;
+}
+
+.stat-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #4640DE;
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-transform: none;
+}
+
+.stat-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: #000000;
+  line-height: 1;
+}
+
+.stat-icon {
+  font-size: 24px;
+  color: #ffffff;
+  width: 56px;
+  height: 56px;
+  background-color: #4640DE;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Middle Section */
+.middle-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* Cards Column - Active Courses and Application Type stacked */
+.cards-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Application Statistics Card */
+.application-stats-card {
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.card-header {
+  margin-bottom: 24px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.bar-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bar-chart {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 200px;
+  padding: 0 8px;
+}
+
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.bars {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 40px;
+}
+
+.bar {
+  flex: 1;
+  border-radius: 0;
+  min-height: 8px;
+  transition: all 0.3s ease;
+}
+
+.bar-views {
+  background-color: #c4b5fd;
+}
+
+.bar-applied {
+  background-color: #8b5cf6;
+}
+
+.bar-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+}
+
+.legend-views {
+  background-color: #c4b5fd;
+}
+
+.legend-applied {
+  background-color: #8b5cf6;
+}
+
+/* Application Summary Cards */
+.summary-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.date-range {
+  font-size: 14px;
+  color: #4640DE;
+  font-weight: 700;
+  padding: 12px 16px;
+  background-color: #e9e7ff;
+  text-align: center;
+  border-radius: 0;
+  margin-bottom: 16px;
+}
+
+.summary-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary-card {
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.summary-content {
+  flex: 1;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.summary-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.summary-icon {
+  font-size: 24px;
+  color: #8b5cf6;
+  width: 48px;
+  height: 48px;
+  background-color: #f3f4f6;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Active Courses Card */
+.active-courses-card {
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.active-courses-content {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.active-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: #4640DE;
+  line-height: 1;
+}
+
+.active-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Application Type Card */
+.application-type-card {
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.application-type-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.type-number-label-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.type-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: #4640DE;
+  line-height: 1;
+}
+
+.type-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  flex: 1;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4640DE;
+  border-radius: 0;
+  transition: width 0.3s ease;
+}
+
+/* Recently Added Courses */
+.recent-courses-section {
+  margin-top: 32px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 24px 0;
+}
+
+.recent-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.recent-course-card {
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recent-course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.course-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.course-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.course-college-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  flex: 1;
+}
+
+.course-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.course-description {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.course-seats {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.course-seats b {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .middle-section {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .summary-cards-container {
+    grid-column: 1;
+  }
+
+  .cards-column {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 1024px) {
+  .middle-section {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-cards-container,
+  .cards-column {
+    grid-column: 1;
+  }
+
+  .recent-courses-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .middle-section {
+    gap: 16px;
+  }
+
+  .bar-chart {
+    height: 150px;
+  }
+
+  .recent-course-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+  
+  .stats-grid {
+    gap: 12px;
+  }
+  
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+
+  .stat-number {
+    font-size: 28px;
+  }
+
+  .middle-section {
+    gap: 12px;
+  }
+
+  .application-stats-card,
+  .summary-card,
+  .active-courses-card,
+  .application-type-card {
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-subtitle {
+    font-size: 12px;
+  }
+
+  .bar-chart {
+    height: 120px;
+    padding: 0 4px;
+  }
+
+  .bar-label {
+    font-size: 10px;
+  }
+
+  .summary-number {
+    font-size: 24px;
+  }
+
+  .summary-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .active-number,
+  .type-number {
+    font-size: 32px;
+  }
+
+  .active-label,
+  .type-label {
+    font-size: 12px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .recent-course-card {
+    padding: 16px;
+  }
+
+  .course-title {
+    font-size: 16px;
+  }
+
+  .course-description {
+    font-size: 13px;
+  }
+
+  .course-seats {
+    font-size: 12px;
+  }
+}
