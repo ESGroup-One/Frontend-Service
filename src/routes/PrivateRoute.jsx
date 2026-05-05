@@ -18,7 +18,7 @@ export default function PrivateRoute({ allowedRole }) {
         const redirectPaths = {
             student: "/user",
             admin: "/admin",
-            superAdmin: "/superadmin",
+            superadmin: "/superadmin",
         };
         return <Navigate to={redirectPaths[userRole] || "/"} replace />;
     }

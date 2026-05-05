@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../../styles/loginForm.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 
-const API_BASE_URL = "http://localhost:8000/api/login";
+import { useAuth } from "../../context/AuthContext";
+import "../../styles/loginForm.css";
+import { Login_URL } from "../../constant";
 
 const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -42,18 +42,20 @@ export default function UserLogin() {
     };
 
     useEffect(() => {
-        // Wait for auth to load before redirecting
         if (!isLoading && isAuthenticated) {
             let redirectPath = '/';
             if (userRole === 'student') {
-                redirectPath = '/user'; // Student path
+                redirectPath = '/user';
             } else if (userRole === 'admin') {
-                redirectPath = '/admin'; // Admin path
-            } else if (userRole === 'superAdmin') {
-                redirectPath = '/superadmin'; // SuperAdmin path
+                redirectPath = '/admin';
+            } else if (userRole === 'superadmin' || userRole === 'superAdmin') {
+                redirectPath = '/superadmin';
             }
-            // Navigate away from the login page
-            navigate(redirectPath, { replace: true });
+
+            // Only navigate if the path is different to prevent navigation throttling
+            if (window.location.pathname !== redirectPath) {
+                navigate(redirectPath, { replace: true });
+            }
         }
     }, [isAuthenticated, userRole, isLoading, navigate]);
 
@@ -64,22 +66,20 @@ export default function UserLogin() {
 
         const isIndexNumber = /^\d{12}$/.test(identifier);
 
-        // Request body uses 'indexNumber' (camelCase) for consistency with the backend query
+        // Send a payload that consistently matches Postman's expected keys
         const requestBody = {
             password,
-            indexNumber: isIndexNumber ? identifier : null,
-            email: isValidEmail(identifier) && !isIndexNumber ? identifier : null,
+            // Always send the identifier under 'indexNumber' if it's not an email, or pass it as email if your API requires an email key
+            indexNumber: isIndexNumber ? identifier : identifier,
         };
 
         try {
-            const response = await axios.post(`${API_BASE_URL}`, requestBody);
+            const response = await axios.post(`${Login_URL}`, requestBody);
 
-            if (response.data.status == 'success') {
-
+            if (response.data.status === 'success' || response.status === 200) {
                 localStorage.setItem('authToken', response.data.token);
                 localStorage.setItem('userDetails', JSON.stringify(response.data.user));
                 localStorage.setItem('userRole', response.data.user.role);
-
 
                 toast.success("Login successful.", {
                     position: "top-right",
@@ -95,7 +95,7 @@ export default function UserLogin() {
                     redirectPath = '/user';
                 } else if (role === 'admin') {
                     redirectPath = '/admin';
-                } else if (role === 'superAdmin') {
+                } else if (role === 'superadmin') {
                     redirectPath = '/superadmin';
                 }
                 navigate(redirectPath);

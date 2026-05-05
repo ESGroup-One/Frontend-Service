@@ -70,7 +70,7 @@ const App = () => {
           </Route>
 
           {/* Super admin routes (protected) */}
-          <Route element={<PrivateRoute allowedRole="superAdmin" />}>
+          <Route element={<PrivateRoute allowedRole="superadmin" />}>
             <Route path='/superadmin' element={<SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout>} />
             <Route path='/superadmin/colleges' element={<SuperAdminLayout><Colleges /></SuperAdminLayout>} />
             <Route path='/superadmin/AddCollegePage' element={<SuperAdminLayout><AddCollegePage /></SuperAdminLayout>} />

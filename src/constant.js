@@ -1,0 +1,1 @@
+export const Login_URL = "http://localhost:8081/authservice/api/auth/login";
