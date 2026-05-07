@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import styles from './styles/courseDetail.module.css';
+import styles from '../user/styles/courseDetail.module.css';
 
 import { GET_COURSE_BY_ID } from '../../constant';
 
@@ -78,7 +78,7 @@ const SeatAvailability = ({ govSeats, selfFinancedSeats }) => {
     );
 };
 
-const CourseDetail = () => {
+const AdminCourseDetail = () => {
     const { courseId } = useParams();
     const navigate = useNavigate();
 
@@ -92,103 +92,13 @@ const CourseDetail = () => {
     const [applicationData, setApplicationData] = useState(null);
 
     useEffect(() => {
-        const fetchCourseAndEligibility = async () => {
-            setLoading(true);
-            setEligibilityLoading(true);
-            const token = localStorage.getItem('authToken');
-
-            try {
-                const token = localStorage.getItem("authToken");
-                const courseResponse = await fetch(GET_COURSE_BY_ID(courseId), {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!courseResponse.ok) throw new Error("Course not found");
-                const courseData = await courseResponse.json();
-
-                console.log(courseData)
-
-                const eligibilityList = formatBackendCriteria(courseData.eligibility_criteria);
-                const meritList = formatBackendCriteria(courseData.merit_ranking);
-                const applyBeforeDate = formatDate(courseData.application_dateline);
-                const postedOnDate = formatDate(courseData.createdAt);
-
-                const processedData = {
-                    ...courseData,
-                    eligibility: eligibilityList,
-                    meritRanking: meritList,
-                    govSeats: courseData.gov_seats || 0,
-                    selfFinancedSeats: courseData.self_finance_seats || 0,
-                    fullDescription: courseData.fullDescription || courseData.description || 'No detailed description available.',
-                    applicationDates: { applyBefore: applyBeforeDate, postedOn: postedOnDate },
-                    collegeLogo: courseData.college?.image || 'default_logo.png'
-                };
-
-                setData(processedData);
-                setError(null);
-
-                // 2. Check Eligibility
-                const eligibilityResponse = await fetch(`http://localhost:8000/api/applications/check-eligibility/${courseId}`, {
-                    method: 'POST', // POST for security/state
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`, // Pass token for authentication
-                    },
-                    // Send an empty body or any required mock data if needed, but not application data
-                    body: JSON.stringify({}),
-                });
-
-                const eligibilityResult = await eligibilityResponse.json();
-
-                if (eligibilityResponse.ok && eligibilityResult.status === 'success') {
-                    if (eligibilityResult.isEligible) {
-                        setIsEligible(true);
-                        setEligibilityMessage('');
-                        setApplicationData(eligibilityResult.applicationData);
-                    } else {
-                        setIsEligible(false);
-                        const reasons = Object.entries(eligibilityResult.eligibilityDetails || {})
-                            .filter(([, detail]) => !detail.met)
-                            .map(([subject, detail]) =>
-                                `${subject} (Required: ${detail.required})`
-                            ).join(', ');
-
-                        if (eligibilityResult.message.includes('already applied')) {
-                            setEligibilityMessage('You have already applied for this course.');
-                        } else if (reasons) {
-                            setEligibilityMessage(`Failed criteria: ${reasons}.`);
-                        } else {
-                            setEligibilityMessage(eligibilityResult.message || 'You are NOT eligible for this course.');
-                        }
-                    }
-                } else {
-                    // Handle server errors or application dateline passed
-                    setIsEligible(false);
-                    setEligibilityMessage(eligibilityResult.message || 'Error checking eligibility.');
-                }
-
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                setError("Course details could not be loaded.");
-                setIsEligible(false);
-                setEligibilityMessage('Error connecting to the server.');
-            } finally {
-                setLoading(false);
-                setEligibilityLoading(false);
-            }
-        };
-
-        fetchCourseAndEligibility();
-    }, [courseId]);
-
-    useEffect(() => {
         const fetchCourse = async () => {
             setLoading(true);
             try {
                 const token = localStorage.getItem("authToken");
                 const response = await fetch(GET_COURSE_BY_ID(courseId), {
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -207,6 +117,7 @@ const CourseDetail = () => {
 
                 const processedData = {
                     ...courseData,
+                    college: courseData.college?.collegeName,
                     eligibility: eligibilityList,
                     meritRanking: meritList,
 
@@ -223,8 +134,7 @@ const CourseDetail = () => {
                         postedOn: postedOnDate
                     },
 
-                    // Placeholder for college logo (needs to be implemented on backend/static assets for real logos)
-                    logoUrl: courseData.logoUrl || 'default_logo_path.png',
+                    logoUrl: courseData.logoUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
                 };
 
                 setData(processedData);
@@ -239,18 +149,6 @@ const CourseDetail = () => {
 
         fetchCourse();
     }, [courseId]);
-
-    const handleApply = () => {
-        // Pass the pre-calculated application data to the application form page
-        // Use state or local storage for data transfer on navigation
-        if (isEligible && applicationData) {
-            sessionStorage.setItem('applicationPreviewData', JSON.stringify(applicationData));
-            navigate(`/user/courses/${courseId}/apply`);
-        } else if (applicationData) {
-            // Handle case where user somehow clicks apply when ineligible
-            console.log("Cannot apply, not eligible.");
-        }
-    };
 
     if (loading) {
         return (
@@ -282,8 +180,8 @@ const CourseDetail = () => {
                 <div className={styles.headerSection}>
                     <div className={styles.headerContent}>
                         <img
-                            src={data.createdBy.image}
-                            alt={`${data.createdBy.image} Logo`}
+                            src={data.logoUrl}
+                            alt={`${data.college} Logo`}
                             className={styles.collegeLogo}
                         />
                         <div className={styles.collegeInfo}>
@@ -342,32 +240,6 @@ const CourseDetail = () => {
                     {/* Right Column - Sidebar */}
                     <div className={styles.rightColumn}>
 
-                        <div className={styles.applySection}>
-                            {eligibilityLoading ? (
-                                <button className={styles.applyButton} disabled style={{ backgroundColor: '#9ca3af' }}>
-                                    Checking Eligibility...
-                                </button>
-                            ) : (
-                                <button
-                                    className={styles.applyButton}
-                                    onClick={handleApply}
-                                    disabled={!isEligible}
-                                    style={{
-                                        backgroundColor: isEligible ? '#4f46e5' : '#33324eff',
-                                        cursor: isEligible ? 'pointer' : 'not-allowed'
-                                    }}
-                                    title={eligibilityMessage}
-                                >
-                                    {isEligible ? 'Apply Now' : 'Not Eligible'}
-                                </button>
-                            )}
-                            <p className={styles.eligibilityMessage} style={{ color: isEligible ? '#10b981' : '#ef4444', marginTop: '10px', fontSize: '14px', textAlign: 'justify' }}>
-                                {eligibilityMessage}
-                            </p>
-                        </div>
-
-                        <hr className={styles.divider} />
-
                         {/* Available Seat Details */}
                         <div className={styles.sidebarSection}>
                             <h3 className={styles.sidebarTitle}>Available Seat Details</h3>
@@ -402,4 +274,4 @@ const CourseDetail = () => {
     );
 };
 
-export default CourseDetail;
+export default AdminCourseDetail;

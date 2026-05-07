@@ -26,7 +26,7 @@ export default function UserLogin() {
     const validateForm = () => {
         const newErrors = {};
 
-        const isIndexNumber = /^\d{12}$/.test(identifier);
+        const isIndexNumber = /^\d{11}$/.test(identifier);
         const isEmail = isValidEmail(identifier);
 
         if (!isIndexNumber && !isEmail) {

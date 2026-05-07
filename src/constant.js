@@ -24,3 +24,5 @@ export const COURSES_URL = `${REPO_BASE}/courses`;
 export const ALL_COURSES_URL = `${COURSES_URL}/all`;
 export const MY_COURSES_URL = `${COURSES_URL}/my-courses`;
 export const ADD_COURSE_URL = `${COURSES_URL}/add`;
+export const GET_COURSE_BY_ID = (id) => `${COURSES_URL}/${id}`;
+export const MY_COURSE_COUNT_URL = `${COURSES_URL}/my-count`;
