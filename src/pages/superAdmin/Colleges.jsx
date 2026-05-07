@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import EditCollegeForm from '../../components/EditCollegeForm'
-import { collegeAPI } from '../../utils/api'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   FaSearch,
   FaEdit,
@@ -11,8 +9,11 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaEllipsisV
-} from 'react-icons/fa'
-import './Colleges.css'
+} from 'react-icons/fa';
+import './Colleges.css';
+
+import EditCollegeForm from '../../components/EditCollegeForm';
+import { COLLEGES_URL } from '../../constant';
 
 const Colleges = () => {
   const navigate = useNavigate()
@@ -31,46 +32,35 @@ const Colleges = () => {
 
   const loadColleges = useCallback(async () => {
     try {
-      const params = {
-        page: currentPage,
-        limit: collegesPerPage,
-        search: searchTerm
-      }
-      const result = await collegeAPI.getAll(params)
-      
-      if (result.data && result.data.colleges) {
-        const formatDate = (dateString) => {
-          if (!dateString) return 'N/A'
-          try {
-            const date = new Date(dateString)
-            if (isNaN(date.getTime())) return 'N/A'
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })
-          } catch {
-            return 'N/A'
-          }
-        }
+      const token = localStorage.getItem('token');
+      const response = await fetch(COLLEGES_URL, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
 
-        const formattedColleges = result.data.colleges.map(college => ({
-          id: college._id,
-          name: college.name || '',
-          admin: college.admin?.name || '',
-          adminEmail: college.admin?.email || '',
-          contactInfo: college.admin?.contactInfo || '',
-          appliedDate: formatDate(college.formattedAppliedDate || college.appliedDate || college.createdAt),
-          website: college.website || ''
-        }))
-        setCollegesData(formattedColleges)
-        setTotalPages(result.data.pagination?.totalPages || 1)
-        setTotalColleges(result.data.pagination?.totalColleges || 0)
+      if (Array.isArray(data)) {
+        const formattedColleges = data.map(college => ({
+          id: college.id,
+          name: college.collegeName || '',
+          admin: college.fullName || '',
+          adminEmail: college.email || '',
+          contactInfo: college.contactInfo || '',
+          appliedDate: 'N/A',
+          website: college.websiteUrl || ''
+        }));
+
+        const filtered = searchTerm
+          ? formattedColleges.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+          : formattedColleges;
+
+        setCollegesData(filtered.slice((currentPage - 1) * collegesPerPage, currentPage * collegesPerPage));
+        setTotalColleges(filtered.length);
+        setTotalPages(Math.ceil(filtered.length / collegesPerPage) || 1);
       }
-    } catch {
-      // Keep empty array if API fails
+    } catch (error) {
+      toast.error("Error loading colleges");
     }
-  }, [currentPage, searchTerm, collegesPerPage])
+  }, [currentPage, searchTerm, collegesPerPage]);
 
   // Load colleges from API on component mount
   useEffect(() => {
@@ -115,7 +105,7 @@ const Colleges = () => {
   const handleDropdownToggle = (collegeId, event) => {
     const newState = openDropdown === collegeId ? null : collegeId
     setOpenDropdown(newState)
-    
+
     // If opening dropdown, check if it needs to be positioned upward
     if (newState && event) {
       setTimeout(() => {
@@ -123,7 +113,7 @@ const Colleges = () => {
         if (menuElement) {
           const rect = menuElement.getBoundingClientRect()
           const viewportHeight = window.innerHeight
-          
+
           // If dropdown would overflow bottom of viewport, position it upward
           if (rect.bottom > viewportHeight - 20) {
             menuElement.classList.add('dropdown-menu-up')
@@ -150,7 +140,7 @@ const Colleges = () => {
     try {
       await collegeAPI.update(selectedCollege.id, updateData)
       toast.success('College updated successfully!')
-      
+
       // Reload colleges
       setSearchTerm('')
       const params = {
@@ -158,7 +148,7 @@ const Colleges = () => {
         limit: collegesPerPage,
         search: ''
       }
-      
+
       collegeAPI.getAll(params).then(result => {
         if (result.data && result.data.colleges) {
           const formatDate = (dateString) => {
@@ -189,7 +179,7 @@ const Colleges = () => {
           setTotalPages(result.data.pagination?.totalPages || 1)
           setTotalColleges(result.data.pagination?.totalColleges || 0)
         }
-      }).catch(() => {})
+      }).catch(() => { })
     } catch (error) {
       toast.error(`Error updating college: ${error.message}`)
       throw error
@@ -208,12 +198,12 @@ const Colleges = () => {
         <p style={{ margin: 0 }}>Are you sure you want to delete this college?</p>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
           <button
-            style={{ 
-              padding: '8px 20px', 
-              background: '#dc3545', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '0', 
+            style={{
+              padding: '8px 20px',
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0',
               cursor: 'pointer',
               fontWeight: 'bold'
             }}
@@ -222,7 +212,7 @@ const Colleges = () => {
               try {
                 await collegeAPI.delete(collegeId)
                 toast.success('College deleted successfully!')
-                
+
                 // Reload colleges
                 setSearchTerm('')
                 const params = {
@@ -230,7 +220,7 @@ const Colleges = () => {
                   limit: collegesPerPage,
                   search: ''
                 }
-                
+
                 collegeAPI.getAll(params).then(result => {
                   if (result.data && result.data.colleges) {
                     const formattedColleges = result.data.colleges.map(college => ({
@@ -246,7 +236,7 @@ const Colleges = () => {
                     setTotalPages(result.data.pagination?.totalPages || 1)
                     setTotalColleges(result.data.pagination?.totalColleges || 0)
                   }
-                }).catch(() => {})
+                }).catch(() => { })
               } catch (error) {
                 toast.error(`Error deleting college: ${error.message}`)
               }
@@ -256,12 +246,12 @@ const Colleges = () => {
             Yes, Delete
           </button>
           <button
-            style={{ 
-              padding: '8px 20px', 
-              background: '#6c757d', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '0', 
+            style={{
+              padding: '8px 20px',
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0',
               cursor: 'pointer',
               fontWeight: 'bold'
             }}
@@ -275,7 +265,7 @@ const Colleges = () => {
         </div>
       </div>
     );
-    
+
     toast.info(<ConfirmDialog />, {
       position: "top-center",
       autoClose: false,

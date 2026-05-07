@@ -7,9 +7,10 @@ import {
   FaFileAlt,
   FaGlobe,
   FaPhone
-} from 'react-icons/fa'
-import './SuperAdminDashboard.css'
-import { dashboardAPI, courseAPI, collegeAPI } from '../../utils/api'
+} from 'react-icons/fa';
+import './SuperAdminDashboard.css';
+
+import { USER_COUNTS_URL, ALL_COURSES_URL, COLLEGES_URL } from '../../constant'
 
 const SuperAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -37,92 +38,54 @@ const SuperAdminDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        
-        const countsResponse = await dashboardAPI.getCounts();
-        if (countsResponse.success && countsResponse.counts) {
-          setStats(prev => ({
-            ...prev,
-            totalColleges: countsResponse.counts.colleges || 0,
-            totalCourses: countsResponse.counts.courses || 0,
-            totalUsers: countsResponse.counts.users || 0
-          }));
+        const token = localStorage.getItem('token');
+
+        // 1. Fetch Global Counts
+        const countsRes = await fetch(USER_COUNTS_URL, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const counts = await countsRes.json();
+        setStats(prev => ({
+          ...prev,
+          totalColleges: counts.colleges || 0,
+          totalCourses: counts.courses || 0,
+          totalUsers: counts.users || 0
+        }));
+
+        // 2. Fetch Recent Courses
+        const coursesRes = await fetch(ALL_COURSES_URL, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const courses = await coursesRes.json();
+        if (Array.isArray(courses)) {
+          setRecentCourses(courses.slice(0, 2).map(c => ({
+            id: c.id,
+            college: c.college?.collegeName || 'N/A',
+            title: c.title,
+            description: c.description,
+            govSeats: c.gov_seats,
+            selfFinancedSeats: c.self_finance_seats
+          })));
+          setStats(prev => ({ ...prev, activeCourses: courses.length }));
         }
 
-        const appStatsResponse = await dashboardAPI.getApplicationStats();
-        if (appStatsResponse.success && appStatsResponse.data) {
-          setStats(prev => ({
-            ...prev,
-            coursesApplied: appStatsResponse.data.total || 0,
-            coursesViews: appStatsResponse.data.total || 0
-          }));
+        // 3. Fetch Recent Colleges
+        const collegesRes = await fetch(COLLEGES_URL, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const colleges = await collegesRes.json();
+        if (Array.isArray(colleges)) {
+          setRecentColleges(colleges.slice(0, 6).map(col => ({
+            id: col.id,
+            name: col.collegeName,
+            adminName: col.fullName,
+            adminEmail: col.email,
+            website: col.websiteUrl,
+            contactInfo: col.contactInfo
+          })));
         }
-
-        try {
-          const dailyStatsResponse = await dashboardAPI.getDailyStats();
-          if (dailyStatsResponse && dailyStatsResponse.success && dailyStatsResponse.data) {
-            const dayOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const orderedData = dayOrder.map(day => {
-              const dayData = dailyStatsResponse.data.find(d => d.day === day);
-              return dayData || { day, views: 0, applied: 0 };
-            });
-            setChartData(orderedData);
-          }
-        } catch (error) {
-          console.error('Error fetching daily stats:', error);
-        }
-
-        try {
-          const coursesResponse = await courseAPI.getAll();
-          const courses = Array.isArray(coursesResponse) ? coursesResponse : [];
-          
-          const recent = courses
-            .sort((a, b) => new Date(b.createdAt || b._id) - new Date(a.createdAt || a._id))
-            .slice(0, 2)
-            .map(course => ({
-              id: course._id,
-              college: course.college || 'Unknown College',
-              title: course.title || 'Untitled Course',
-              description: course.description ? 
-                (course.description.length > 100 ? course.description.substring(0, 100) + '...' : course.description) 
-                : 'No description available',
-              logoUrl: null,
-              govSeats: course.gov_seats || 0,
-              selfFinancedSeats: course.self_finance_seats || 0
-            }));
-          
-          setRecentCourses(recent);
-          setStats(prev => ({
-            ...prev,
-            activeCourses: courses.length || 0
-          }));
-        } catch (error) {
-          console.error('Error fetching courses:', error);
-        }
-
-        try {
-          const collegesResponse = await collegeAPI.getAll({ page: 1, limit: 6 });
-          const colleges = collegesResponse?.data?.colleges || [];
-          
-          const recent = colleges
-            .sort((a, b) => new Date(b.createdAt || b.appliedDate || b._id) - new Date(a.createdAt || a.appliedDate || a._id))
-            .slice(0, 6)
-            .map(college => ({
-              id: college._id,
-              name: college.name || 'Unknown College',
-              logo: college.logo || '',
-              adminName: college.admin?.name || '',
-              adminEmail: college.admin?.email || '',
-              website: college.website || '',
-              contactInfo: college.admin?.contactInfo || ''
-            }));
-          
-          setRecentColleges(recent);
-        } catch (error) {
-          console.error('Error fetching colleges:', error);
-        }
-
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Dashboard Load Error:', error);
       } finally {
         setLoading(false);
       }
@@ -181,12 +144,12 @@ const SuperAdminDashboard = () => {
                 {chartData.map((data, index) => (
                   <div key={index} className="bar-group">
                     <div className="bars">
-                      <div 
-                        className="bar bar-views" 
+                      <div
+                        className="bar bar-views"
                         style={{ height: `${(data.views / maxValue) * 100}%` }}
                       ></div>
-                      <div 
-                        className="bar bar-applied" 
+                      <div
+                        className="bar bar-applied"
                         style={{ height: `${(data.applied / maxValue) * 100}%` }}
                       ></div>
                     </div>
@@ -282,9 +245,9 @@ const SuperAdminDashboard = () => {
                   {college.website && (
                     <div className="course-seats" style={{ fontSize: '14px', color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <FaGlobe size={14} color="#4640DE" />
-                      <a 
-                        href={college.website} 
-                        target="_blank" 
+                      <a
+                        href={college.website}
+                        target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: '#4640DE', textDecoration: 'none' }}
                         onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
