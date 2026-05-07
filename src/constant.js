@@ -12,6 +12,8 @@ export const USERS_URL = `${REPO_BASE}/users`;
 export const USER_COUNTS_URL = `${USERS_URL}/counts`;
 export const USER_AGGREGATE_URL = (id) => `${USERS_URL}/aggregate/${id}`;
 export const DELETE_USER_URL = (id) => `${USERS_URL}/${id}`;
+export const REGISTER_INITIATE_URL = (indexNumber) => `${AUTH_BASE}/register/initiate/${indexNumber}`;
+export const REGISTER_COMPLETE_URL = `${AUTH_BASE}/register/complete`;
 
 // College Endpoints
 export const COLLEGES_URL = `${REPO_BASE}/colleges`;

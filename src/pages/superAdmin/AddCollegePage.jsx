@@ -190,11 +190,13 @@ const AddCollegePage = () => {
         body: JSON.stringify(collegeData)
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         toast.success('College created successfully!');
         setTimeout(() => navigate('/superadmin/colleges'), 1500);
       } else {
-        throw new Error('Failed to create college');
+        throw new Error( data.message || 'Failed to create college');
       }
     } catch (error) {
       toast.error(error.message);

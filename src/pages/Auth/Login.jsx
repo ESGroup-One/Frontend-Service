@@ -30,7 +30,7 @@ export default function UserLogin() {
         const isEmail = isValidEmail(identifier);
 
         if (!isIndexNumber && !isEmail) {
-            newErrors.identifier = "Must be a valid 12-digit Index Number or a valid Email address.";
+            newErrors.identifier = "Must be a valid 11-digit Index Number or a valid Email address.";
         }
 
         if (!password) {
@@ -64,8 +64,8 @@ export default function UserLogin() {
         if (!validateForm()) return;
         setLoading(true);
 
-        const isIndexNumber = /^\d{12}$/.test(identifier);
-
+        // Inside validateForm: 
+        const isIndexNumber = /^\d{11}$/.test(identifier);
         // Send a payload that consistently matches Postman's expected keys
         const requestBody = {
             password,
