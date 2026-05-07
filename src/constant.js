@@ -26,3 +26,8 @@ export const MY_COURSES_URL = `${COURSES_URL}/my-courses`;
 export const ADD_COURSE_URL = `${COURSES_URL}/add`;
 export const GET_COURSE_BY_ID = (id) => `${COURSES_URL}/${id}`;
 export const MY_COURSE_COUNT_URL = `${COURSES_URL}/my-count`;
+
+// Placement Service
+export const PLACEMENT_BASE = `${BASE_URL}/placementservice/api/applications`;
+export const CHECK_ELIGIBILITY_URL = (courseId) => `${PLACEMENT_BASE}/check-eligibility/${courseId}`;
+export const SUBMIT_APPLICATION_URL = (courseId) => `${PLACEMENT_BASE}/apply/${courseId}`;
