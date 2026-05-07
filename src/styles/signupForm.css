@@ -77,7 +77,7 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #4640DE;
+  border-color: #4E296C;
 }
 
 .form-input::placeholder {
@@ -115,7 +115,7 @@
 }
 
 .signup-link {
-  color: #4640DE;
+  color: #4E296C;
   text-decoration: none;
   font-weight: 500;
 }
@@ -155,7 +155,7 @@
 
 .otp-input:focus {
   outline: none;
-  border-color: #4640DE;
+  border-color: #4E296C;
 }
 
 .otp-instruction {
@@ -174,7 +174,7 @@
 }
 
 .terms-link {
-  color: #4640DE;
+  color: #4E296C;
   text-decoration: none;
 }
 

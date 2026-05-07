@@ -118,7 +118,10 @@ export default function UserLogin() {
 
     return (
         <div className="login-container">
-            <h1 className="login-title">EduConnect</h1>
+            <div className="login-header">
+                <img src="/logo.png" alt="NSPS Logo" className="login-logo" />
+                <h1 className="login-brand-text">NSPS</h1>
+            </div>
 
             <div className="login-subtitle-wrapper">
                 <span className="subtitle-line"></span>

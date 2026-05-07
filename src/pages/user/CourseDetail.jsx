@@ -104,7 +104,7 @@ const CourseDetail = () => {
                     },
                     // Use fallback for seats if keys differ (e.g., gov_seats vs govSeats)
                     govSeats: courseData.govSeats || courseData.gov_seats || 0,
-                    selfFinancedSeats: courseData.selfFinancedSeats || courseData.self_financed_seats || 0
+                    selfFinancedSeats: courseData.selfFinancedSeats || courseData.self_finance_seats || 0
                 };
 
                 setData(formattedData);
@@ -217,7 +217,7 @@ const CourseDetail = () => {
                                 onClick={handleApply}
                                 disabled={eligibilityLoading || !isEligible}
                                 style={{
-                                    backgroundColor: isEligible ? '#4f46e5' : '#33324eff',
+                                    backgroundColor: isEligible ? '#4E296C' : '#33324eff',
                                     cursor: isEligible ? 'pointer' : 'not-allowed'
                                 }}
                             >

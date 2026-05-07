@@ -10,15 +10,25 @@
 .sidebarHeader {
   display: flex;
   align-items: center;
-  height: 64px;
-  padding: 0 24px;
+  height: 63px;
+  padding: 0 20px;
   border-bottom: 1px solid var(--border-color);
+  gap: 8px;
 }
 
-.logo {
-  font-size: 1.25rem;
+.logoImage {
+  width: 50px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.logoText {
+  font-size: 1.5rem;
   font-weight: bold;
-  color: var(--dark-gray);
+  color: var(--primary-color);
+  margin: 0;
+  margin-top: 5px;
+  letter-spacing: 0.5px;
 }
 
 .sidebarNav {

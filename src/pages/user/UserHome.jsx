@@ -179,12 +179,12 @@ export const StatsSection = () => {
 //                     gap: "8px",
 //                   }}
 //                 >
-//                   <FaGlobe size={14} color="#4640DE" />
+//                   <FaGlobe size={14} color="#4E296C" />
 //                   <a
 //                     href={college.website}
 //                     target="_blank"
 //                     rel="noopener noreferrer"
-//                     style={{ color: "#4640DE", textDecoration: "none" }}
+//                     style={{ color: "#4E296C", textDecoration: "none" }}
 //                     onMouseEnter={(e) =>
 //                       (e.target.style.textDecoration = "underline")
 //                     }
@@ -210,7 +210,7 @@ export const StatsSection = () => {
 //                     gap: "8px",
 //                   }}
 //                 >
-//                   <FaPhone size={14} color="#4640DE" />
+//                   <FaPhone size={14} color="#4E296C" />
 //                   <span>{college.contactInfo}</span>
 //                 </div>
 //               )}

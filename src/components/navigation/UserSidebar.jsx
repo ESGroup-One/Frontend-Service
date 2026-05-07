@@ -14,9 +14,13 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebarContainer}>
-      {/* Header / Logo */}
       <div className={styles.sidebarHeader}>
-        <h1 className={styles.logo}>EduConnect</h1>
+        <img
+          src="/logo.png"
+          alt="NSPS Logo"
+          className={styles.logoImage}
+        />
+        <h1 className={styles.logoText}>NSPS</h1>
       </div>
 
       {/* Navigation Links */}
@@ -40,7 +44,7 @@ const Sidebar = () => {
 
       {/* Logout Section */}
       <div className={styles.sidebarFooter}>
-        <div 
+        <div
           className={styles.navLink}
           onClick={logout}
         >
