@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './styles/courseDetail.module.css';
 
+import {
+    GET_COURSE_BY_ID,
+    CHECK_ELIGIBILITY_URL,
+} from '../../constant';
+
 const formatBackendCriteria = (criteriaObject) => {
     if (!criteriaObject || typeof criteriaObject !== 'object') return [];
 
@@ -43,34 +48,20 @@ const PlusCircleIcon = (props) => (
 );
 
 const SectionTitle = ({ children }) => (
-    <h2 className={styles.sectionTitle}>
-        {children}
-    </h2>
+    <h2 className={styles.sectionTitle}>{children}</h2>
 );
 
 const SeatAvailability = ({ govSeats, selfFinancedSeats }) => {
     const totalSeats = (govSeats || 0) + (selfFinancedSeats || 0);
     const govPercentage = totalSeats > 0 ? (govSeats / totalSeats) * 100 : 0;
-    const selfFinancedPercentage = totalSeats > 0 ? (selfFinancedSeats / totalSeats) * 100 : 0;
 
     return (
         <div className={styles.seatAvailabilityDetails}>
             <p className={styles.seatText}>
                 <strong>{govSeats || 0}</strong> Higher Education Grant and <strong>{selfFinancedSeats || 0}</strong> self financed
             </p>
-
             <div className={styles.progressBarContainer}>
-                <div
-                    className={styles.govSeatsBar}
-                    style={{ width: `${govPercentage}%` }}
-                />
-                {/* <div
-                    className={styles.selfFinancedBar}
-                    style={{
-                        width: `${selfFinancedPercentage}%`,
-                        transform: `translateX(${govPercentage}%)`
-                    }}
-                /> */}
+                <div className={styles.govSeatsBar} style={{ width: `${govPercentage}%` }} />
             </div>
         </div>
     );
@@ -85,89 +76,64 @@ const CourseDetail = () => {
     const [error, setError] = useState(null);
 
     const [isEligible, setIsEligible] = useState(false);
+    const [eligibleData, setEligibleData] = useState();
     const [eligibilityMessage, setEligibilityMessage] = useState('Checking eligibility...');
     const [eligibilityLoading, setEligibilityLoading] = useState(true);
-    const [applicationData, setApplicationData] = useState(null);
 
     useEffect(() => {
         const fetchCourseAndEligibility = async () => {
             setLoading(true);
             setEligibilityLoading(true);
-            const token = localStorage.getItem('authToken'); // Assuming JWT is stored here
+            const token = localStorage.getItem('authToken');
 
             try {
-                // 1. Fetch Course Details
-                const courseResponse = await fetch(`http://localhost:8000/api/courses/${courseId}`);
-
-                if (!courseResponse.ok) {
-                    throw new Error(`HTTP error! Status: ${courseResponse.status}`);
-                }
+                const courseResponse = await fetch(GET_COURSE_BY_ID(courseId));
+                if (!courseResponse.ok) throw new Error("Course not found");
                 const courseData = await courseResponse.json();
 
-                const eligibilityList = formatBackendCriteria(courseData.eligibility_criteria);
-                const meritList = formatBackendCriteria(courseData.merit_ranking);
-                const applyBeforeDate = formatDate(courseData.application_dateline);
-                const postedOnDate = formatDate(courseData.createdAt);
-
-                const processedData = {
+                const formattedData = {
                     ...courseData,
-                    eligibility: eligibilityList,
-                    meritRanking: meritList,
-                    govSeats: courseData.gov_seats || 0,
-                    selfFinancedSeats: courseData.self_finance_seats || 0,
-                    fullDescription: courseData.fullDescription || courseData.description || 'No detailed description available.',
-                    applicationDates: { applyBefore: applyBeforeDate, postedOn: postedOnDate },
-                    logoUrl: courseData.logoUrl || 'default_logo_path.png',
+                    // Map backend merit_ranking to UI meritRanking
+                    meritRanking: Object.entries(courseData.merit_ranking || {}).map(
+                        ([subject, weight]) => `${subject} (x${weight})`
+                    ),
+                    // Ensure dates are formatted correctly
+                    applicationDates: {
+                        applyBefore: formatDate(courseData.applyBefore),
+                        postedOn: formatDate(courseData.createdAt) // or courseData.postedOn
+                    },
+                    // Use fallback for seats if keys differ (e.g., gov_seats vs govSeats)
+                    govSeats: courseData.govSeats || courseData.gov_seats || 0,
+                    selfFinancedSeats: courseData.selfFinancedSeats || courseData.self_financed_seats || 0
                 };
 
-                setData(processedData);
-                setError(null);
+                setData(formattedData);
 
-                // 2. Check Eligibility
-                const eligibilityResponse = await fetch(`http://localhost:8000/api/applications/check-eligibility/${courseId}`, {
-                    method: 'POST', // POST for security/state
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`, // Pass token for authentication
-                    },
-                    // Send an empty body or any required mock data if needed, but not application data
-                    body: JSON.stringify({}),
-                });
+                if (token) {
+                    const eligibilityResponse = await fetch(CHECK_ELIGIBILITY_URL(courseId), {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const result = await eligibilityResponse.json();
+                    setEligibleData(result);
 
-                const eligibilityResult = await eligibilityResponse.json();
-
-                if (eligibilityResponse.ok && eligibilityResult.status === 'success') {
-                    if (eligibilityResult.isEligible) {
-                        setIsEligible(true);
-                        setEligibilityMessage('');
-                        setApplicationData(eligibilityResult.applicationData);
+                    if (eligibilityResponse.ok) {
+                        setIsEligible(result.isEligible);
+                        setEligibilityMessage(result.reasons?.join(' ') || result.message);
                     } else {
                         setIsEligible(false);
-                        const reasons = Object.entries(eligibilityResult.eligibilityDetails || {})
-                            .filter(([, detail]) => !detail.met)
-                            .map(([subject, detail]) =>
-                                `${subject} (Required: ${detail.required})`
-                            ).join(', ');
-
-                        if (eligibilityResult.message.includes('already applied')) {
-                            setEligibilityMessage('You have already applied for this course.');
-                        } else if (reasons) {
-                            setEligibilityMessage(`Failed criteria: ${reasons}.`);
-                        } else {
-                            setEligibilityMessage(eligibilityResult.message || 'You are NOT eligible for this course.');
-                        }
+                        setEligibilityMessage(result.message || "Eligibility check failed.");
                     }
                 } else {
-                    // Handle server errors or application dateline passed
-                    setIsEligible(false);
-                    setEligibilityMessage(eligibilityResult.message || 'Error checking eligibility.');
+                    setEligibilityMessage("Please login to check eligibility.");
                 }
 
             } catch (err) {
                 console.error("Fetch Error:", err);
                 setError("Course details could not be loaded.");
-                setIsEligible(false);
-                setEligibilityMessage('Error connecting to the server.');
             } finally {
                 setLoading(false);
                 setEligibilityLoading(false);
@@ -177,148 +143,64 @@ const CourseDetail = () => {
         fetchCourseAndEligibility();
     }, [courseId]);
 
-    useEffect(() => {
-        const fetchCourse = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch(`http://localhost:8000/api/courses/${courseId}`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const courseData = await response.json();
-
-                const eligibilityList = formatBackendCriteria(courseData.eligibility_criteria);
-                const meritList = formatBackendCriteria(courseData.merit_ranking);
-
-                const applyBeforeDate = formatDate(courseData.application_dateline);
-                const postedOnDate = formatDate(courseData.createdAt);
-
-                const processedData = {
-                    ...courseData,
-                    eligibility: eligibilityList,
-                    meritRanking: meritList,
-
-                    // Map seat counts
-                    govSeats: courseData.gov_seats || 0,
-                    selfFinancedSeats: courseData.self_finance_seats || 0,
-
-                    // Map description fields
-                    fullDescription: courseData.fullDescription || courseData.description || 'No detailed description available.',
-
-                    // Map date object
-                    applicationDates: {
-                        applyBefore: applyBeforeDate,
-                        postedOn: postedOnDate
-                    },
-
-                    // Placeholder for college logo (needs to be implemented on backend/static assets for real logos)
-                    logoUrl: courseData.logoUrl || 'default_logo_path.png',
-                };
-
-                setData(processedData);
-                setError(null);
-            } catch (err) {
-                console.error("Fetch Course Error:", err);
-                setError("Course details could not be loaded.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCourse();
-    }, [courseId]);
-
     const handleApply = () => {
-        // Pass the pre-calculated application data to the application form page
-        // Use state or local storage for data transfer on navigation
-        if (isEligible && applicationData) {
-            sessionStorage.setItem('applicationPreviewData', JSON.stringify(applicationData));
-            navigate(`/user/courses/${courseId}/apply`);
-        } else if (applicationData) {
-            // Handle case where user somehow clicks apply when ineligible
-            console.log("Cannot apply, not eligible.");
-        }
+        if (!isEligible) return;
+        localStorage.setItem('applicationPreviewData', JSON.stringify(eligibleData));
+        navigate(`/user/courses/${courseId}/apply`)
     };
 
-    if (loading) {
-        return (
-            <div className={styles.courseDetailPage}>
-                <div className={styles.courseContainer} style={{ textAlign: 'center', padding: '50px' }}>
-                    <h1 className={styles.collegeName}>Loading...</h1>
-                    <p className={styles.courseTitle}>Fetching course details.</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (error || !data) {
-        return (
-            <div className={styles.courseDetailPage}>
-                <div className={styles.courseContainer} style={{ textAlign: 'center', padding: '50px' }}>
-                    <h1 className={styles.collegeName}>Course Not Found</h1>
-                    <p className={styles.courseTitle}>{error || 'The requested course does not exist.'}</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return <div className={styles.courseDetailPage}><div className={styles.courseContainer}><h1>Loading...</h1></div></div>;
+    if (error || !data) return <div className={styles.courseDetailPage}><div className={styles.courseContainer}><h1>Error</h1><p>{error}</p></div></div>;
 
     return (
         <div className={styles.courseDetailPage}>
             <div className={styles.courseContainer}>
-
-                {/* Header Section */}
+                {/* Header Section - Fixed Image Access */}
                 <div className={styles.headerSection}>
                     <div className={styles.headerContent}>
                         <img
-                            src={data.createdBy.image}
-                            alt={`${data.createdBy.image} Logo`}
+                            src={data.logoUrl}
+                            alt={`${data.collegeName} Logo`}
                             className={styles.collegeLogo}
                         />
                         <div className={styles.collegeInfo}>
-                            <h1 className={styles.collegeName}>
-                                {data.college}
-                            </h1>
-                            <p className={styles.courseTitle}>
-                                {data.title}
-                            </p>
+                            <h1 className={styles.collegeName}>{data.collegeName}</h1>
+                            <p className={styles.courseTitle}>{data.title}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Two Column Layout */}
                 <div className={styles.twoColumnLayout}>
-
-                    {/* Left Column - Main Content */}
                     <div className={styles.leftColumn}>
-
-                        {/* Description Section */}
                         <div className={styles.contentSection}>
                             <SectionTitle>Description</SectionTitle>
-                            <p className={styles.descriptionText}>
-                                {data.fullDescription}
-                            </p>
+                            <p className={styles.descriptionText}>{data.fullDescription}</p>
                         </div>
 
-                        {/* Eligibility Criteria */}
                         <div className={styles.contentSection}>
                             <SectionTitle>Eligibility Criteria</SectionTitle>
                             <ul className={styles.criteriaList}>
-                                {data.eligibility.map((item, index) => (
-                                    <li key={index} className={styles.criteriaItem}>
-                                        <CheckCircleIcon />
-                                        <span>{item}</span>
-                                    </li>
-                                ))}
+                                {Array.isArray(data.eligibility) ?
+                                    data.eligibility.map((item, index) => (
+                                        <li key={index} className={styles.criteriaItem}>
+                                            <CheckCircleIcon />
+                                            <span>{item}</span>
+                                        </li>
+                                    )) :
+                                    formatBackendCriteria(data.eligibility_criteria).map((item, index) => (
+                                        <li key={index} className={styles.criteriaItem}>
+                                            <CheckCircleIcon />
+                                            <span>{item}</span>
+                                        </li>
+                                    ))
+                                }
                             </ul>
                         </div>
 
-                        {/* Merit Ranking Details */}
                         <div className={styles.contentSection}>
                             <SectionTitle>Merit Ranking Details</SectionTitle>
                             <ul className={styles.criteriaList}>
-                                {data.meritRanking.map((item, index) => (
+                                {(data.meritRanking || []).map((item, index) => (
                                     <li key={index} className={styles.criteriaItem}>
                                         <PlusCircleIcon />
                                         <span>{item}</span>
@@ -326,67 +208,47 @@ const CourseDetail = () => {
                                 ))}
                             </ul>
                         </div>
-
                     </div>
 
-                    {/* Right Column - Sidebar */}
                     <div className={styles.rightColumn}>
-
                         <div className={styles.applySection}>
-                            {eligibilityLoading ? (
-                                <button className={styles.applyButton} disabled style={{ backgroundColor: '#9ca3af' }}>
-                                    Checking Eligibility...
-                                </button>
-                            ) : (
-                                <button
-                                    className={styles.applyButton}
-                                    onClick={handleApply}
-                                    disabled={!isEligible}
-                                    style={{
-                                        backgroundColor: isEligible ? '#4f46e5' : '#33324eff',
-                                        cursor: isEligible ? 'pointer' : 'not-allowed'
-                                    }}
-                                    title={eligibilityMessage}
-                                >
-                                    {isEligible ? 'Apply Now' : 'Not Eligible'}
-                                </button>
-                            )}
-                            <p className={styles.eligibilityMessage} style={{ color: isEligible ? '#10b981' : '#ef4444', marginTop: '10px', fontSize: '14px', textAlign: 'justify' }}>
+                            <button
+                                className={styles.applyButton}
+                                onClick={handleApply}
+                                disabled={eligibilityLoading || !isEligible}
+                                style={{
+                                    backgroundColor: isEligible ? '#4f46e5' : '#33324eff',
+                                    cursor: isEligible ? 'pointer' : 'not-allowed'
+                                }}
+                            >
+                                {eligibilityLoading ? 'Checking...' : isEligible ? 'Apply Now' : 'Not Eligible'}
+                            </button>
+                            <p className={styles.eligibilityMessage} style={{ color: isEligible ? '#10b981' : '#ef4444' }}>
                                 {eligibilityMessage}
                             </p>
                         </div>
 
                         <hr className={styles.divider} />
-
-                        {/* Available Seat Details */}
                         <div className={styles.sidebarSection}>
                             <h3 className={styles.sidebarTitle}>Available Seat Details</h3>
-                            <SeatAvailability
-                                govSeats={data.govSeats}
-                                selfFinancedSeats={data.selfFinancedSeats}
-                            />
+                            <SeatAvailability govSeats={data.govSeats} selfFinancedSeats={data.selfFinancedSeats} />
                         </div>
 
                         <hr className={styles.divider} />
-
-                        {/* Application Dates */}
                         <div className={styles.sidebarSection}>
                             <h3 className={styles.sidebarTitle}>Application Timeline</h3>
-                            <div className={styles.dateTable}>
-                                <div className={styles.dateRow}>
-                                    <span className={styles.dateLabel}>Apply Before</span>
-                                    <span className={styles.dateValue}>{data.applicationDates.applyBefore || 'N/A'}</span>
-                                </div>
-                                <div className={styles.dateRow}>
-                                    <span className={styles.dateLabel}>Posted On</span>
-                                    <span className={styles.dateValue}>{data.applicationDates.postedOn || 'N/A'}</span>
-                                </div>
+                            <div className={styles.dateRow}>
+                                <span className={styles.dateLabel}>Apply Before</span>
+                                {/* Added ?. to safely access nested properties */}
+                                <span className={styles.dateValue}>{data.applicationDates?.applyBefore || 'N/A'}</span>
+                            </div>
+                            <div className={styles.dateRow}>
+                                <span className={styles.dateLabel}>Posted On</span>
+                                <span className={styles.dateValue}>{data.applicationDates?.postedOn || 'N/A'}</span>
                             </div>
                         </div>
-
                     </div>
                 </div>
-
             </div>
         </div>
     );

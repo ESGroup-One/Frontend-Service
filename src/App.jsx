@@ -10,6 +10,7 @@ import SuperAdminLayout from './layouts/SuperAdminLayout.jsx';
 // admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AllCoursesPage from './pages/admin/AllCoursesPage.jsx';
+import AdminCourseDetail from './pages/admin/AdminCourseDetail.jsx';
 import AddCoursePage from './pages/admin/AddCoursePage.jsx';
 import ViewApplicationsPage from './pages/admin/ViewApplications.jsx';
 import ViewDetailsPage from './pages/admin/ViewDetailsPage.jsx';
@@ -62,6 +63,7 @@ const App = () => {
           <Route element={<PrivateRoute allowedRole="admin" />}>
             <Route path='/admin' element={<AdminLayout><AdminDashboard /></AdminLayout>} />
             <Route path='/admin/courses' element={<AdminLayout><AllCoursesPage /></AdminLayout>} />
+            <Route path='/admin/courses/:courseId' element={<AdminLayout><AdminCourseDetail /></AdminLayout>} />
             <Route path='/admin/courses/add' element={<AdminLayout><AddCoursePage /></AdminLayout>} />
             <Route path='/admin/applications' element={<AdminLayout><ViewApplicationsPage /></AdminLayout>} />
             <Route path='/admin/applications/:courseId' element={<AdminLayout><ViewDetailsPage /></AdminLayout>} />
@@ -75,7 +77,7 @@ const App = () => {
             <Route path='/superadmin/colleges' element={<SuperAdminLayout><Colleges /></SuperAdminLayout>} />
             <Route path='/superadmin/AddCollegePage' element={<SuperAdminLayout><AddCollegePage /></SuperAdminLayout>} />
             <Route path='/superadmin/users' element={<SuperAdminLayout><Users /></SuperAdminLayout>} />
-            <Route path='/superadmin/profile' element={<SuperAdminLayout><SuperAdminProfile/></SuperAdminLayout>} />
+            <Route path='/superadmin/profile' element={<SuperAdminLayout><SuperAdminProfile /></SuperAdminLayout>} />
           </Route>
 
           {/* Fallback: redirect unknown paths */}

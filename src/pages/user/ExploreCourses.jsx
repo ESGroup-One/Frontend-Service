@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import CourseCard from '../../components/common/CourseCard';
 import styles from './styles/allCourses.module.css';
 
+import { ALL_COURSES_URL } from '../../constant';
+
 const ExploreCourses = () => {
     const [allCourses, setAllCourses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -11,10 +13,14 @@ const ExploreCourses = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/courses/all');
+                setLoading(true);
+                // Using the constant from your constant.js
+                const response = await fetch(ALL_COURSES_URL);
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
                 const data = await response.json();
                 setAllCourses(data);
                 setError(null);
@@ -25,7 +31,6 @@ const ExploreCourses = () => {
                 setLoading(false);
             }
         };
-
         fetchCourses();
     }, []);
 
@@ -90,7 +95,7 @@ const ExploreCourses = () => {
 
             <div className={styles.courseGrid}>
                 {sortedCourses.map((course) => (
-                    <CourseCard key={course._id} course={course} />
+                    <CourseCard key={course.id} course={course} />
                 ))}
             </div>
         </div>

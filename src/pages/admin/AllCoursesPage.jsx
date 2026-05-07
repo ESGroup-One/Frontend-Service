@@ -1,18 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios'; 
-import CourseCard from '../../components/common/CourseCard'; 
+import { Link, useNavigate} from 'react-router-dom';
+import axios from 'axios';
+import CourseCard from '../../components/common/CourseCard';
 import { Plus, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'; // Added Chevrons
 import styles from './AllCoursesPage.module.css';
+
+import { MY_COURSES_URL } from '../../constant';
+
 const AllCoursesPage = () => {
+    const navigate = useNavigate();
+    
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sortOption, setSortOption] = useState('Most recent');
 
-    // --- Pagination State ---
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(6); // Set how many items you want per page
+    const [itemsPerPage] = useState(6);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -25,7 +29,7 @@ const AllCoursesPage = () => {
                     return;
                 }
 
-                const response = await axios.get('http://localhost:8000/api/courses', {
+                const response = await axios.get(MY_COURSES_URL, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -33,7 +37,7 @@ const AllCoursesPage = () => {
                 });
 
                 setCourses(response.data);
-                // console.log(response.data)
+                console.log(response.data)
                 setIsLoading(false);
             } catch (err) {
                 console.error("Error fetching courses:", err);
@@ -46,7 +50,7 @@ const AllCoursesPage = () => {
         fetchCourses();
     }, []);
 
-//added new constant for sort filter
+    //added new constant for sort filter
     useEffect(() => {
         setCurrentPage(1);
     }, [sortOption]);
@@ -72,7 +76,7 @@ const AllCoursesPage = () => {
         return sortableCourses;
     }, [courses, sortOption]);
 
-    // --- Pagination Logic ---
+    // Pagination Logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentCourses = sortedCourses.slice(indexOfFirstItem, indexOfLastItem);
@@ -81,6 +85,10 @@ const AllCoursesPage = () => {
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
         window.scrollTo({ top: 0, behavior: 'smooth' }); // Optional: Scroll to top on change
+    };
+
+    const handleCourseClick = (course) => {
+        navigate(`/admin/courses/${course.id}`);
     };
 
     // --- Loading State ---
@@ -93,7 +101,6 @@ const AllCoursesPage = () => {
         );
     }
 
-    // --- Error State ---
     if (error) {
         return (
             <div className={styles.errorContainer}>
@@ -106,7 +113,7 @@ const AllCoursesPage = () => {
         );
     }
 
-    // --- Success State ---
+    // Success State
     return (
         <div className={styles.pageContainer}>
             <div className={styles.filterBar}>
@@ -120,7 +127,7 @@ const AllCoursesPage = () => {
                         <Plus size={18} /> Add New Course
                     </Link>
                 </div>
-                
+
                 <div className={styles.sortControl}>
                     <label htmlFor="sort" className={styles.sortLabel}>Sort by:</label>
                     <select
@@ -145,19 +152,19 @@ const AllCoursesPage = () => {
                     {/* Render sliced currentCourses instead of sortedCourses */}
                     <div className={styles.coursesGrid}>
                         {currentCourses.map((course) => (
-                            <CourseCard key={course._id} course={course} />
+                            <CourseCard key={course.id} course={course} onClick={handleCourseClick} />
                         ))}
                     </div>
                 </>
             )}
-                    <div className={styles.pagination}>
-                      <button className={styles.pageBtn}><ChevronLeft size={16}/></button>
-                      <button className={`${styles.pageBtn} ${styles.activePage}`}>1</button>
-                      <button className={styles.pageBtn}>2</button>
-                      <button className={styles.pageBtn}>...</button>
-                      <button className={styles.pageBtn}>10</button>
-                      <button className={styles.pageBtn}><ChevronRight size={16}/></button>
-                    </div>
+            <div className={styles.pagination}>
+                <button className={styles.pageBtn}><ChevronLeft size={16} /></button>
+                <button className={`${styles.pageBtn} ${styles.activePage}`}>1</button>
+                <button className={styles.pageBtn}>2</button>
+                <button className={styles.pageBtn}>...</button>
+                <button className={styles.pageBtn}>10</button>
+                <button className={styles.pageBtn}><ChevronRight size={16} /></button>
+            </div>
         </div>
     );
 };
