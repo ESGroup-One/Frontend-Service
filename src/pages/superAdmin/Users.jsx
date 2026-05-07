@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { 
-  FaSearch, 
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  FaSearch,
   FaChevronLeft,
   FaChevronRight
-} from 'react-icons/fa'
-import { userAPI } from '../../utils/api'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import './Users.css'
+} from 'react-icons/fa';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './Users.css';
+
+import { USERS_URL, USER_COUNTS_URL } from '../../constant';
 
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -19,7 +20,7 @@ const Users = () => {
   const [totalUsers, setTotalUsers] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
-  
+
   // Edit modal states
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
@@ -28,55 +29,46 @@ const Users = () => {
   const loadUsers = useCallback(async () => {
     setLoading(true)
     try {
-      const params = {
-        page: currentPage,
-        limit: usersPerPage,
-        search: searchTerm
-      }
-      const result = await userAPI.getAll(params)
-      
-      if (result.users) {
-        const formatDate = (dateString) => {
-          if (!dateString) return 'N/A'
-          try {
-            const date = new Date(dateString)
-            if (isNaN(date.getTime())) return 'N/A'
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })
-          } catch {
-            return 'N/A'
-          }
-        }
+      const token = localStorage.getItem('token');
+      // Fetch users list
+      const response = await fetch(USERS_URL, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
 
-        const formattedUsers = result.users.map(user => ({
-          id: user._id,
-          userName: user.name || user.userName || 'N/A',
+      // Fetch global counts
+      const countsRes = await fetch(USER_COUNTS_URL, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const countsData = await countsRes.json();
+      setTotalUsers(countsData.users || 0);
+
+      if (Array.isArray(data)) {
+        const formattedUsers = data.map(user => ({
+          id: user.id,
+          userName: user.fullName || 'N/A',
           role: user.role || 'student',
-          status: user.status || 'active',
-          joinedDate: formatDate(user.createdAt),
-          email: user.email || 'N/A' // Store email for reference
-        }))
-        
-        setUsersData(formattedUsers)
-        setTotalUsers(result.total || result.count || 0)
-        // Calculate total pages from total users and users per page
-        const calculatedTotalPages = Math.ceil((result.total || result.count || 0) / usersPerPage)
-        setTotalPages(calculatedTotalPages || 1)
+          status: user.verified ? 'active' : 'pending',
+          joinedDate: 'N/A', // Update if backend adds createdAt
+          email: user.email || 'N/A'
+        }));
+
+        // Handle search and pagination locally as backend is basic
+        const filtered = searchTerm
+          ? formattedUsers.filter(u => u.userName.toLowerCase().includes(searchTerm.toLowerCase()))
+          : formattedUsers;
+
+        setUsersData(filtered.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage));
+        setTotalPages(Math.ceil(filtered.length / usersPerPage) || 1);
       }
-    } catch {
-      // Keep empty array if API fails
+    } catch (error) {
+      toast.error("Failed to load users");
     } finally {
       setLoading(false)
     }
   }, [currentPage, searchTerm, usersPerPage])
 
-  // Load users from API on component mount
-  useEffect(() => {
-    loadUsers()
-  }, [loadUsers])
+  useEffect(() => { loadUsers() }, [loadUsers])
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -87,8 +79,8 @@ const Users = () => {
   }
 
   const handleSelectUser = (userId) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
+    setSelectedUsers(prev =>
+      prev.includes(userId)
         ? prev.filter(id => id !== userId)
         : [...prev, userId]
     )
@@ -110,23 +102,24 @@ const Users = () => {
   }
 
   const handleUpdateUser = async () => {
-    if (!editName.trim()) {
-      toast.error('Name cannot be empty')
-      return
-    }
-
     try {
-      // Use 'name' field as that's what the backend expects
-      await userAPI.update(selectedUser.id, { name: editName }, selectedUser.role)
-      toast.success('User updated successfully!')
-      setShowEditModal(false)
-      setSelectedUser(null)
-      setEditName('')
-      // Reload users
-      loadUsers()
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${USERS_URL}/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ fullName: editName })
+      });
+
+      if (response.ok) {
+        toast.success('User updated successfully!');
+        handleCloseEditModal();
+        loadUsers();
+      }
     } catch (error) {
-      console.error('Update error:', error)
-      toast.error(`Error updating user: ${error.message || 'Failed to update user'}`)
+      toast.error('Failed to update user');
     }
   }
 
@@ -137,39 +130,40 @@ const Users = () => {
         <p style={{ margin: 0 }}>Are you sure you want to delete this user?</p>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
           <button
-            style={{ 
-              padding: '8px 20px', 
-              background: '#dc3545', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '0', 
+            style={{
+              padding: '8px 20px',
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0',
               cursor: 'pointer',
               fontWeight: 'bold'
             }}
             onClick={async () => {
               closeToast();
               try {
-                const user = usersData.find(u => u.id === userId)
-                const userRole = user?.role || 'student'
-                await userAPI.delete(userId, userRole)
-                toast.success('User deleted successfully!')
-                // Refresh the user list
-                loadUsers()
+                const token = localStorage.getItem('token');
+                await fetch(`${USERS_URL}/${userId}`, {
+                  method: 'DELETE',
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                toast.success('User deleted successfully!');
+                loadUsers();
               } catch (error) {
-                console.error('Delete error:', error)
-                toast.error(`Error deleting user: ${error.message || 'Failed to delete user'}`)
+                toast.error('Failed to delete user');
               }
-            }}
+            }
+            }
           >
             Yes, Delete
           </button>
           <button
-            style={{ 
-              padding: '8px 20px', 
-              background: '#6c757d', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '0', 
+            style={{
+              padding: '8px 20px',
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0',
               cursor: 'pointer',
               fontWeight: 'bold'
             }}
@@ -180,9 +174,9 @@ const Users = () => {
             Cancel
           </button>
         </div>
-      </div>
+      </div >
     );
-    
+
     toast.info(<ConfirmDialog />, {
       position: "top-center",
       autoClose: false,
@@ -201,7 +195,7 @@ const Users = () => {
           <div className="users-title-section">
             <p className="users-summary">Total User : {totalUsers}</p>
           </div>
-          
+
           <div className="search-container">
             <FaSearch className="search-icon" />
             <input
@@ -252,13 +246,13 @@ const Users = () => {
                   <td>{user.joinedDate}</td>
                   <td>
                     <div className="action-buttons">
-                      <button 
+                      <button
                         className="btn-edit"
                         onClick={() => handleEdit(user.id)}
                       >
                         Edit
                       </button>
-                      <button 
+                      <button
                         className="btn-delete"
                         onClick={() => handleDelete(user.id)}
                       >
@@ -282,7 +276,7 @@ const Users = () => {
             </div>
           ) : (
             <div className="pagination-controls">
-              <button 
+              <button
                 className="pagination-btn"
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
@@ -310,7 +304,7 @@ const Users = () => {
                   </button>
                 )
               })}
-              <button 
+              <button
                 className="pagination-btn"
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
@@ -325,7 +319,7 @@ const Users = () => {
 
       {/* Edit User Modal */}
       {showEditModal && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -340,7 +334,7 @@ const Users = () => {
           }}
           onClick={handleCloseEditModal}
         >
-          <div 
+          <div
             style={{
               backgroundColor: 'white',
               padding: '30px',
@@ -351,7 +345,7 @@ const Users = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Edit User</h2>
-            
+
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
                 User Name

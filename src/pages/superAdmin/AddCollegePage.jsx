@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { FaCheck, FaExclamationTriangle, FaSpinner } from 'react-icons/fa'
-import './AddCollegePage.css'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheck, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
+import './AddCollegePage.css';
+
+import { COLLEGES_URL } from '../../constant';
 
 const AddCollegePage = () => {
   const navigate = useNavigate()
@@ -25,7 +27,7 @@ const AddCollegePage = () => {
   // Validation rules
   const validateField = (name, value) => {
     const newErrors = { ...errors }
-    
+
     switch (name) {
       case 'collegeName':
         if (!value.trim()) {
@@ -36,7 +38,7 @@ const AddCollegePage = () => {
           delete newErrors.collegeName
         }
         break
-        
+
       case 'adminName':
         if (!value.trim()) {
           newErrors.adminName = 'Admin name is required'
@@ -46,7 +48,7 @@ const AddCollegePage = () => {
           delete newErrors.adminName
         }
         break
-        
+
       case 'adminEmail': {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!value.trim()) {
@@ -58,7 +60,7 @@ const AddCollegePage = () => {
         }
         break
       }
-        
+
       case 'adminContact':
         if (!value.trim()) {
           newErrors.adminContact = 'Contact info is required'
@@ -68,7 +70,7 @@ const AddCollegePage = () => {
           delete newErrors.adminContact
         }
         break
-        
+
       case 'collegeWebsite':
         if (value.trim()) {
           const urlRegex = /^https?:\/\/.+\..+/
@@ -81,11 +83,11 @@ const AddCollegePage = () => {
           delete newErrors.collegeWebsite
         }
         break
-        
+
       default:
         break
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -93,12 +95,12 @@ const AddCollegePage = () => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
     const newValue = type === 'checkbox' ? checked : value
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: newValue
     }))
-    
+
     if (fieldTouched[name]) {
       validateField(name, newValue)
     }
@@ -122,7 +124,7 @@ const AddCollegePage = () => {
         setErrors(prev => ({ ...prev, logo: 'Please select an image file' }))
         return
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         setErrors(prev => ({ ...prev, logo: 'Image size should be less than 5MB' }))
         return
@@ -146,80 +148,57 @@ const AddCollegePage = () => {
   const validateForm = () => {
     const fieldsToValidate = ['collegeName', 'adminName', 'adminEmail', 'adminContact']
     let isValid = true
-    
+
     fieldsToValidate.forEach(field => {
       if (!validateField(field, formData[field])) {
         isValid = false
       }
     })
-    
+
     const touchedFields = {}
     fieldsToValidate.forEach(field => {
       touchedFields[field] = true
     })
     setFieldTouched(touchedFields)
-    
+
     return isValid
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validateForm()) {
-      toast.error('Please fill in all required fields correctly')
-      return
-    }
-    
-    setIsLoading(true)
-    toast.info('Creating college...', { autoClose: 2000 })
-    
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsLoading(true);
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append('collegeName', formData.collegeName)
-      formDataToSend.append('adminName', formData.adminName)
-      formDataToSend.append('adminEmail', formData.adminEmail)
-      formDataToSend.append('adminContact', formData.adminContact)
+      const token = localStorage.getItem('token');
+      // Map frontend fields to User entity fields (Admin Role)
+      const collegeData = {
+        collegeName: formData.collegeName,
+        fullName: formData.adminName,
+        email: formData.adminEmail,
+        contactInfo: formData.adminContact,
+        websiteUrl: formData.collegeWebsite,
+        role: 'admin'
+      };
 
-      if (formData.collegeWebsite && formData.collegeWebsite.trim()) {
-        formDataToSend.append('collegeWebsite', formData.collegeWebsite)
-      }
-
-      formDataToSend.append('sendNotification', formData.sendNotification ? 'true' : 'false')
-      
-      if (logoFile) {
-        formDataToSend.append('logo', logoFile)
-      }
-
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token')
-      const response = await fetch('http://localhost:8000/api/superadmin/colleges', {
+      const response = await fetch(COLLEGES_URL, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: formDataToSend
-      })
+        body: JSON.stringify(collegeData)
+      });
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        let errorMessage = data.message || 'Failed to create college'
-        if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
-          const errorDetails = data.errors.map(err => `${err.field}: ${err.message}`).join(', ')
-          errorMessage = `Validation error: ${errorDetails}`
-        }
-        throw new Error(errorMessage)
+      if (response.ok) {
+        toast.success('College created successfully!');
+        setTimeout(() => navigate('/superadmin/colleges'), 1500);
+      } else {
+        throw new Error('Failed to create college');
       }
-      
-      toast.success('College created successfully!')
-      
-      setTimeout(() => {
-        navigate('/superadmin/colleges')
-      }, 1500)
-      
     } catch (error) {
-      console.error('Error creating college:', error)
-      toast.error(error.message || 'Error creating college')
-      setIsLoading(false)
+      toast.error(error.message);
+      setIsLoading(false);
     }
   }
 
@@ -238,7 +217,7 @@ const AddCollegePage = () => {
           {/* College Information Section */}
           <div className="form-section">
             <h3 className="section-title">College Information</h3>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">College Name</label>
@@ -291,9 +270,9 @@ const AddCollegePage = () => {
                   </div>
                   {logoPreview && (
                     <div style={{ width: '100px', height: '100px', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb' }}>
-                      <img 
-                        src={logoPreview} 
-                        alt="Logo preview" 
+                      <img
+                        src={logoPreview}
+                        alt="Logo preview"
                         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                       />
                     </div>
@@ -362,7 +341,7 @@ const AddCollegePage = () => {
           <div className="form-section">
             <h3 className="section-title">Register an Admin</h3>
             <p className="section-description">Create an account for an admin who will manage the college</p>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Admin Name</label>
@@ -440,8 +419,8 @@ const AddCollegePage = () => {
           <button type="button" className="btn-cancel" onClick={handleCancel} disabled={isLoading}>
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={`btn-submit ${isLoading ? 'loading' : ''}`}
             disabled={isLoading || Object.keys(errors).length > 0}
           >
