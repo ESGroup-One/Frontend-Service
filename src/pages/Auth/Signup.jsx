@@ -145,7 +145,10 @@ export default function SignupPage() {
   return (
     <div className="login-container">
       <div className="login-content">
-        <h1 className="login-title">EduConnect</h1>
+        <div className="login-header">
+          <img src="/logo.png" alt="NSPS Logo" className="login-logo" />
+          <h1 className="login-brand-text">NSPS</h1>
+        </div>
 
         {step === 1 && (
           <>

@@ -311,7 +311,7 @@ function ApplicationForm() {
                     {/* Footer / Submit Section */}
                     <div style={{ marginTop: '30px' }}>
                         <p className={styles.termsText} style={{ color: '#6b7280', fontSize: '13px', lineHeight: '1.5' }}>
-                            By sending the request you can confirm that you accept our <strong style={{ color: '#4f46e5' }}>Terms of Service</strong> and <strong style={{ color: '#4f46e5' }}>Privacy Policy</strong>
+                            By sending the request you can confirm that you accept our <strong style={{ color: '#4E296C' }}>Terms of Service</strong> and <strong style={{ color: '#4E296C' }}>Privacy Policy</strong>
                         </p>
                         <button
                             type="submit"
@@ -319,7 +319,7 @@ function ApplicationForm() {
                             style={{
                                 marginTop: '15px',
                                 padding: '10px 25px',
-                                backgroundColor: loading ? '#9ca3af' : '#4f46e5',
+                                backgroundColor: loading ? '#9ca3af' : '#4E296C',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '4px',

@@ -384,7 +384,7 @@ const Users = () => {
                 onClick={handleUpdateUser}
                 style={{
                   padding: '10px 20px',
-                  background: '#4640DE',
+                  background: '#4E296C',
                   color: 'white',
                   border: 'none',
                   borderRadius: '0',
