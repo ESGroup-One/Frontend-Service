@@ -171,7 +171,7 @@ const AddCollegePage = () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      // Map frontend fields to User entity fields (Admin Role)
+
       const collegeData = {
         collegeName: formData.collegeName,
         fullName: formData.adminName,
@@ -184,10 +184,10 @@ const AddCollegePage = () => {
       const response = await fetch(COLLEGES_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json',      // ← correct header
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(collegeData)
+        body: JSON.stringify(collegeData)           // ← send JSON, not FormData
       });
 
       const data = await response.json();
@@ -196,13 +196,13 @@ const AddCollegePage = () => {
         toast.success('College created successfully!');
         setTimeout(() => navigate('/superadmin/colleges'), 1500);
       } else {
-        throw new Error( data.message || 'Failed to create college');
+        throw new Error(data.message || 'Failed to create college');
       }
     } catch (error) {
       toast.error(error.message);
       setIsLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
     navigate('/superadmin/colleges')

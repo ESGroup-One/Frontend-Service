@@ -4,7 +4,7 @@ export const BASE_URL = `http://localhost:8081`;
 export const AUTH_BASE = `${BASE_URL}/authservice/api/auth`;
 export const Login_URL = `${AUTH_BASE}/login`;
 
-// Repository Service (Spring Boot Backend)
+// Repository Service — direct to :8082, no gateway prefix
 export const REPO_BASE = `${BASE_URL}/repositoryservice/api`;
 
 // User Endpoints
