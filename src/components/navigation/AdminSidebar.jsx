@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
   const { logout } = useAuth();
-  
+
   const navItems = [
     { to: "/admin", icon: LayoutDashboard, label: 'Dashboard' },
     { to: "/admin/courses", icon: Compass, label: 'Explore Courses' },
@@ -16,7 +16,12 @@ const Sidebar = () => {
   return (
     <div className={styles.sidebarContainer}>
       <div className={styles.sidebarHeader}>
-        <h1 className={styles.logo}>EduConnect</h1>
+        <img
+          src="/logo.png"
+          alt="NSPS Logo"
+          className={styles.logoImage}
+        />
+        <h1 className={styles.logoText}>NSPS</h1>
       </div>
       <nav className={styles.sidebarNav}>
         {navItems.map((item) => (
@@ -34,7 +39,7 @@ const Sidebar = () => {
         ))}
       </nav>
       <div className={styles.sidebarFooter}>
-        <div 
+        <div
           className={styles.navLink}
           onClick={logout}
         >

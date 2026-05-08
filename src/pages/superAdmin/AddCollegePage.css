@@ -199,7 +199,7 @@
 }
 
 .btn-submit {
-  background-color: #4640DE;
+  background-color: #4E296C;
   color: white;
   border: none;
   padding: 14px 32px;
@@ -223,7 +223,7 @@
 }
 
 .btn-submit.loading {
-  background-color: #4640DE;
+  background-color: #4E296C;
   cursor: not-allowed;
 }
 

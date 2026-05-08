@@ -132,7 +132,7 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        <div className="middle-section">
+        {/* <div className="middle-section">
 
           <div className="application-stats-card">
             <div className="card-header">
@@ -216,9 +216,9 @@ const SuperAdminDashboard = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
-        {/* Recently Registered Colleges */}
+        {/* Recently Registered Colleges
         <div className="recent-courses-section">
           <h3 className="section-title">Recently Registered Colleges</h3>
           <div className="recent-courses-grid">
@@ -234,8 +234,6 @@ const SuperAdminDashboard = () => {
                     <h4 className="course-college-name">{college.name}</h4>
                   </div>
 
-                  {/* Removed courseName + courseDescription */}
-
                   {college.adminName && (
                     <div className="course-seats" style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
                       Admin: <b>{college.adminName}</b>
@@ -244,12 +242,12 @@ const SuperAdminDashboard = () => {
 
                   {college.website && (
                     <div className="course-seats" style={{ fontSize: '14px', color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <FaGlobe size={14} color="#4640DE" />
+                      <FaGlobe size={14} color="#4E296C" />
                       <a
                         href={college.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: '#4640DE', textDecoration: 'none' }}
+                        style={{ color: '#4E296C', textDecoration: 'none' }}
                         onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
                         onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
                       >
@@ -260,7 +258,7 @@ const SuperAdminDashboard = () => {
 
                   {college.contactInfo && (
                     <div className="course-seats" style={{ fontSize: '14px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <FaPhone size={14} color="#4640DE" />
+                      <FaPhone size={14} color="#4E296C" />
                       <span>{college.contactInfo}</span>
                     </div>
                   )}
@@ -272,7 +270,6 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        {/* Recently Added Courses */}
         {recentCourses.length > 0 && (
           <div className="recent-courses-section" style={{ marginTop: '40px' }}>
             <h3 className="section-title">Recently Added Courses</h3>
@@ -294,7 +291,8 @@ const SuperAdminDashboard = () => {
               ))}
             </div>
           </div>
-        )}
+        )} */}
+        
       </div>
     </>
   )

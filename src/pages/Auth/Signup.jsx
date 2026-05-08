@@ -108,7 +108,10 @@ const handlePasswordSubmit = async (e) => {
   return (
     <div className="login-container">
       <div className="login-content">
-      <img src={logo} alt="nsps" className="login-logo" />
+        <div className="login-header">
+          <img src="/logo.png" alt="NSPS Logo" className="login-logo" />
+          <h1 className="login-brand-text">NSPS</h1>
+        </div>
 
         {/* Step 1: Index Number */}
         {step === 1 && (

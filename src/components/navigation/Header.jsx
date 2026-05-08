@@ -10,7 +10,7 @@ const Header = () => {
   const location = useLocation()
   const { user } = useAuth()
 
-  const userName = user?.name || 'No name';
+  const userName = user?.fullName || 'No name';
   const userEmail = user?.email || 'No email';
   const userImage = user?.image || fallbackImage;
 
