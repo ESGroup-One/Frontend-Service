@@ -10,7 +10,7 @@ import { MY_COURSES_URL } from '../../constant';
 const AllCoursesPage = () => {
     const navigate = useNavigate();
     
-    const [courses, setCourses] = useState([]);
+    const [courses, setCourses] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sortOption, setSortOption] = useState('Most recent');
