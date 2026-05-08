@@ -46,6 +46,15 @@
   line-height: 1;
 }
 
+.login-logo {
+  width: 180px;
+  height: auto;
+  align-items: center;
+  justify-content: center;
+  display: block;
+  margin: 0 auto 1.5rem auto;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -93,7 +102,7 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #4640DE;
+  border-color: #4E296C;
 }
 
 .form-input::placeholder {
@@ -104,7 +113,7 @@
 .login-button {
   width: 100%;
   padding: 0.875rem;
-  background: #5046e5;
+  background: #4E296C;
   color: white;
   border: none;
   border-radius: 4px;
@@ -116,11 +125,11 @@
 }
 
 .login-button:hover {
-  background: #4239d4;
+  background: #4E296C;
 }
 
 .login-button:active {
-  background: #3830c2;
+  background: #4E296C;
 }
 
 .signup-text {
@@ -131,7 +140,7 @@
 }
 
 .signup-link {
-  color: #4640DE;
+  color: #4E296C;
   text-decoration: none;
   font-weight: 500;
 }
@@ -171,7 +180,7 @@
 
 .otp-input:focus {
   outline: none;
-  border-color: #4640DE;
+  border-color: #4E296C;
 }
 
 .otp-instruction {
@@ -190,7 +199,7 @@
 }
 
 .terms-link {
-  color: #4640DE;
+  color: #4E296C;
   text-decoration: none;
 }
 

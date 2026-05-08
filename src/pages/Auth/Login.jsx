@@ -8,6 +8,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "../../styles/loginForm.css";
 import { Login_URL } from "../../constant";
+import logo from "../../assets/logo.png";
 
 const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -118,7 +119,8 @@ export default function UserLogin() {
 
     return (
         <div className="login-container">
-            <h1 className="login-title">EduConnect</h1>
+                  <img src={logo} alt="nsps" className="login-logo" />
+            
 
             <div className="login-subtitle-wrapper">
                 <span className="subtitle-line"></span>

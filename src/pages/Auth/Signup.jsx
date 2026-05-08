@@ -6,8 +6,9 @@ import { toast, ToastContainer } from "react-toastify";
 import { Eye, EyeOff } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 import { REGISTER_INITIATE_URL, REGISTER_COMPLETE_URL } from "../../constant";
+import logo from "../../assets/logo.png";
 
-const VERIFY_OTP_URL = "http://localhost:8081/authservice/api/auth/verify-otp";
+// const VERIFY_OTP_URL = "http://localhost:8081/authservice/api/auth/verify-otp";
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
@@ -75,41 +76,39 @@ export default function SignupPage() {
   };
 
   // Step 3: Set password + confirm (complete registration)
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$/;
-    if (!passwordRegex.test(password)) {
-      newErrors.password = "Password must be 8-12 characters with at least one uppercase letter, number, and special character";
-    }
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // re‑send OTP because backend expects it (or we could modify backend to not require OTP after verification)
-      const otpCode = otp.join("");
-      await axios.post(REGISTER_COMPLETE_URL, { indexNumber, otp: otpCode, password });
-      toast.success("Registration successful! Redirecting to login...", { position: "top-right", autoClose: 3000, style: toastStyle });
-      setTimeout(() => navigate("/"), 1500);
-    } catch (err) {
-      const msg = err.response?.data || "Registration failed. Please try again.";
-      toast.error(msg, { position: "top-right", autoClose: 3000, style: toastStyle });
-      setErrors({ general: msg });
-    } finally {
-      setLoading(false);
-    }
-  };
+const handlePasswordSubmit = async (e) => {
+  e.preventDefault();
+  if (password !== confirmPassword) {
+    setErrors({ password: "Passwords do not match" });
+    return;
+  }
+  if (password.length < 8) {
+    setErrors({ password: "Password must be at least 8 characters" });
+    return;
+  }
+  setLoading(true);
+  try {
+    const otpCode = otp.join("");
+    await axios.post(REGISTER_COMPLETE_URL, {
+      indexNumber,
+      otp: otpCode,
+      password,
+    });
+    setErrors({});
+    navigate("/login"); // Navigate to login page on success
+  } catch (err) {
+    // Fix: Extract the message string from the error object
+    const errorMessage = err.response?.data?.message || err.response?.data?.error || "Registration failed. Please try again.";
+    setErrors({ password: errorMessage });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="login-container">
       <div className="login-content">
-        <h1 className="login-title">EduConnect</h1>
+      <img src={logo} alt="nsps" className="login-logo" />
 
         {/* Step 1: Index Number */}
         {step === 1 && (

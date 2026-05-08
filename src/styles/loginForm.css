@@ -116,13 +116,13 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: #4E296C;
 }
 
 .forgot-password {
   align-self: flex-end;
   font-size: 0.875rem;
-  color: #6366f1;
+  color: #4E296C;
   text-decoration: none;
 }
 
@@ -133,7 +133,7 @@
 .login-button {
   width: 100%;
   padding: 0.875rem;
-  background: #6366f1;
+  background: #4E296C;
   color: white;
   border: none;
   border-radius: 4px;
@@ -144,7 +144,7 @@
 }
 
 .login-button:hover {
-  background: #5558e3;
+  background: #4E296C;
 }
 
 .signup-text {
@@ -155,7 +155,7 @@
 }
 
 .signup-link {
-  color: #6366f1;
+  color: #4E296C;
   text-decoration: none;
   font-weight: 500;
 }
