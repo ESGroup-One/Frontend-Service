@@ -10,7 +10,7 @@ const formatBackendCriteria = (criteriaObject) => {
     return Object.keys(criteriaObject).map(key => {
         const value = criteriaObject[key];
         if (typeof value === 'number' && key !== 'Overall_Aggregate') {
-            return `${key} x ${value}`;
+            return `Minimum ${value}% in ${key}`;
         }
         if (typeof value === 'number') {
             return `Minimum ${value}% in ${key}`;
@@ -23,7 +23,14 @@ const formatDate = (isoDateString) => {
     if (!isoDateString) return 'N/A';
     try {
         const date = new Date(isoDateString);
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (isNaN(date.getTime())) return 'N/A';
+
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: 'UTC'
+        });
     } catch (e) {
         return 'N/A';
     }
@@ -66,13 +73,6 @@ const SeatAvailability = ({ govSeats, selfFinancedSeats }) => {
                     className={styles.govSeatsBar}
                     style={{ width: `${govPercentage}%` }}
                 />
-                {/* <div
-                    className={styles.selfFinancedBar}
-                    style={{
-                        width: `${selfFinancedPercentage}%`,
-                        transform: `translateX(${govPercentage}%)`
-                    }}
-                /> */}
             </div>
         </div>
     );
@@ -110,7 +110,6 @@ const AdminCourseDetail = () => {
                 const courseData = await response.json();
 
                 const eligibilityList = formatBackendCriteria(courseData.eligibility_criteria);
-                const meritList = formatBackendCriteria(courseData.merit_ranking);
 
                 const applyBeforeDate = formatDate(courseData.application_dateline);
                 const postedOnDate = formatDate(courseData.createdAt);
@@ -119,7 +118,9 @@ const AdminCourseDetail = () => {
                     ...courseData,
                     college: courseData.college?.collegeName,
                     eligibility: eligibilityList,
-                    meritRanking: meritList,
+                    meritRanking: Object.entries(courseData.merit_ranking || {}).map(
+                        ([subject, weight]) => `${subject} (x${weight})`
+                    ),
 
                     // Map seat counts
                     govSeats: courseData.gov_seats || 0,
@@ -130,8 +131,8 @@ const AdminCourseDetail = () => {
 
                     // Map date object
                     applicationDates: {
-                        applyBefore: applyBeforeDate,
-                        postedOn: postedOnDate
+                        applyBefore: formatDate(courseData.application_dateline),
+                        postedOn: formatDate(courseData.createdAt)
                     },
 
                     logoUrl: courseData.logoUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
