@@ -1,44 +1,48 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import "../../styles/loginForm.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:8000/api";
+import { useAuth } from "../../context/AuthContext";
+import { SET_ADMIN_PASSWORD_URL } from "../../constant";
+import "../../styles/loginForm.css";
+
+const getRedirectPath = (role) => {
+  const normalizedRole = role?.toLowerCase();
+
+  if (normalizedRole === "student") return "/user";
+  if (normalizedRole === "admin") return "/admin";
+  if (normalizedRole === "superadmin") return "/superadmin";
+
+  return "/";
+};
 
 export default function SetPassword() {
-  const { token } = useParams();
+  const { token: pathToken } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = pathToken || searchParams.get("token");
+
   const navigate = useNavigate();
+  const { isAuthenticated, userRole, isLoading } = useAuth();
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated, userRole, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    // Wait for auth to load before redirecting
     if (!isLoading && isAuthenticated) {
-      let redirectPath = '/';
-      if (userRole === 'student') {
-        redirectPath = '/user';
-      } else if (userRole === 'admin') {
-        redirectPath = '/admin';
-      } else if (userRole === 'superAdmin') {
-        redirectPath = '/superadmin';
-      }
-      navigate(redirectPath, { replace: true });
+      navigate(getRedirectPath(userRole), { replace: true });
     }
   }, [isAuthenticated, userRole, isLoading, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
 
-    // Password validation - at least 8 characters (as per backend requirement)
     if (!password) {
       newErrors.password = "Password is required.";
     } else if (password.length < 8) {
@@ -57,64 +61,58 @@ export default function SetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateForm()) return;
 
     if (!token) {
-      toast.error("Invalid or missing token. Please check your email link.");
+      const message = "Invalid or missing token. Please check your email link.";
+      setErrors({ general: message });
+      toast.error(message);
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/set-password/${token}`,
-        { password: password }
-      );
+      await axios.post(SET_ADMIN_PASSWORD_URL, {
+        token,
+        password,
+      });
 
-      if (response.data.token) {
-        // Don't store auth data - user should log in fresh
-        // Clear any existing auth data
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userDetails");
 
-        toast.success(response.data.message || "Password set successfully! Please login with your credentials.", {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "light",
-        });
+      window.dispatchEvent(new Event("authChanged"));
 
-        window.dispatchEvent(new Event("authChanged"));
+      toast.success("Password set successfully. Please login.", {
+        position: "top-right",
+        autoClose: 1500,
+        theme: "light",
+      });
 
-        // Redirect to login page
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-      } else {
-        toast.error(response.data.message || "Failed to set password.");
-      }
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 1500);
     } catch (error) {
       console.error("Set password error:", error);
-      const errorMessage = error.response?.data?.message || "Something went wrong. The token may be invalid or expired.";
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data ||
+        "Something went wrong. The token may be invalid or expired.";
+
+      setErrors({ general: errorMessage });
+
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
         theme: "light",
       });
-      setErrors({ general: errorMessage });
     } finally {
       setLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(prevState => !prevState);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(prevState => !prevState);
   };
 
   return (
@@ -131,78 +129,81 @@ export default function SetPassword() {
       </div>
 
       <form onSubmit={handleSubmit} className="login-form">
+        {/* PASSWORD FIELD */}
         <div className="form-group">
           <label htmlFor="password" className="form-label">
             Password
           </label>
-          <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            className="form-input"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="new-password"
-          />
-          <button
-            type="button"
-            onClick={togglePasswordVisibility}
-            style={{
-              position: 'absolute',
-              right: '10px',
-              top: '75%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '5px',
-              zIndex: 10,
-            }}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? <EyeOff size={20} color="#777" /> : <Eye size={20} color="#777" />}
-          </button>
+
+          <div className="password-field">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              className="form-input password-field-input"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="password-field-toggle"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff size={20} strokeWidth={2.2} />
+              ) : (
+                <Eye size={20} strokeWidth={2.2} />
+              )}
+            </button>
+          </div>
+
           {errors.password && <p className="error-message">{errors.password}</p>}
         </div>
 
+        {/* CONFIRM PASSWORD FIELD */}
         <div className="form-group">
           <label htmlFor="confirmPassword" className="form-label">
             Confirm Password
           </label>
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            id="confirmPassword"
-            className="form-input"
-            placeholder="Confirm your password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            autoComplete="new-password"
-          />
-          <button
-            type="button"
-            onClick={toggleConfirmPasswordVisibility}
-            style={{
-              position: 'absolute',
-              right: '10px',
-              top: '75%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '5px',
-              zIndex: 10,
-            }}
-            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-          >
-            {showConfirmPassword ? <EyeOff size={20} color="#777" /> : <Eye size={20} color="#777" />}
-          </button>
-          {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+
+          <div className="password-field">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              className="form-input password-field-input"
+              placeholder="Confirm your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="password-field-toggle"
+              onClick={() => setShowConfirmPassword((value) => !value)}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? (
+                <EyeOff size={20} strokeWidth={2.2} />
+              ) : (
+                <Eye size={20} strokeWidth={2.2} />
+              )}
+            </button>
+          </div>
+
+          {errors.confirmPassword && (
+            <p className="error-message">{errors.confirmPassword}</p>
+          )}
         </div>
 
         {errors.general && (
-          <p className="error-message" style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <p
+            className="error-message"
+            style={{ textAlign: "center", marginBottom: "16px" }}
+          >
             {errors.general}
           </p>
         )}
@@ -214,12 +215,12 @@ export default function SetPassword() {
 
       <p className="signup-text">
         Remember your password?{" "}
-        <a href="/" className="signup-link">
+        <Link to="/" className="signup-link">
           Login
-        </a>
+        </Link>
       </p>
+
       <ToastContainer />
     </div>
   );
 }
-

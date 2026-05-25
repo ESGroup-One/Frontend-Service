@@ -5,7 +5,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaCheck, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
 import './AddCollegePage.css';
 
-import { COLLEGES_URL } from '../../constant';
+
+import { REGISTER_ADMIN_URL } from '../../constant'
 
 const AddCollegePage = () => {
   const navigate = useNavigate()
@@ -169,40 +170,40 @@ const AddCollegePage = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+
     try {
-      const token = localStorage.getItem('token');
-      // Map frontend fields to User entity fields (Admin Role)
+      const token = localStorage.getItem("authToken") || localStorage.getItem("token");
+
       const collegeData = {
-        collegeName: formData.collegeName,
-        fullName: formData.adminName,
-        email: formData.adminEmail,
-        contactInfo: formData.adminContact,
-        websiteUrl: formData.collegeWebsite,
-        role: 'admin'
+        collegeName: formData.collegeName.trim(),
+        fullName: formData.adminName.trim(),
+        email: formData.adminEmail.trim(),
+        contactInfo: formData.adminContact.trim(),
+        websiteUrl: formData.collegeWebsite.trim(),
       };
 
-      const response = await fetch(COLLEGES_URL, {
-        method: 'POST',
+      const response = await fetch(REGISTER_ADMIN_URL, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(collegeData)
+        body: JSON.stringify(collegeData),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
 
-      if (response.ok) {
-        toast.success('College created successfully!');
-        setTimeout(() => navigate('/superadmin/colleges'), 1500);
-      } else {
-        throw new Error( data.message || 'Failed to create college');
+      if (!response.ok) {
+        throw new Error(responseText || "Failed to create college.");
       }
+
+      toast.success(responseText || "College admin invited successfully.");
+      setTimeout(() => navigate("/superadmin/colleges"), 1500);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to create college.");
       setIsLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
     navigate('/superadmin/colleges')
