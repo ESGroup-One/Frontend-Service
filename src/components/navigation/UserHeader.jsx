@@ -12,7 +12,7 @@ const Header = () => {
 
   const userName = user?.fullName || 'No name';
   const userEmail = user?.email || 'No email';
-  const userImage = user?.image || fallbackImage;
+  const userImage = user?.profileImageUrl || fallbackImage;
 
   const getPageTitle = () => {
     if (location.pathname === '/user/explore') {

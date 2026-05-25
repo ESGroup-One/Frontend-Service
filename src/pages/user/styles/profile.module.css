@@ -17,6 +17,7 @@
   object-fit: contain;
   border-radius: 50px;
   flex-shrink: 0;
+  border: 1px solid #d1d5db;
 }
 
 .collegeName {
@@ -132,6 +133,7 @@
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid #d1d5db;
 }
 
 .replaceBox {

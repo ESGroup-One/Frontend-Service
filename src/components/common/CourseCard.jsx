@@ -19,7 +19,7 @@ const CourseCard = ({ course, onClick }) => {
     >
       <div className={styles.cardHeader}>
         <img
-          src={course.college?.image || '/default-college-logo.png'}
+          src={course.college?.profileImageUrl || '/default-college-logo.png'}
           alt={`${course.college?.collegeName || 'College'} logo`}
           className={styles.collegeLogo}
         />

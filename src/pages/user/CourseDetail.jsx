@@ -13,7 +13,7 @@ const formatBackendCriteria = (criteriaObject) => {
     return Object.keys(criteriaObject).map(key => {
         const value = criteriaObject[key];
         if (typeof value === 'number' && key !== 'Overall_Aggregate') {
-            return `${key} x ${value}`;
+            return `Minimum ${value}% in ${key}`;
         }
         if (typeof value === 'number') {
             return `Minimum ${value}% in ${key}`;
@@ -26,7 +26,14 @@ const formatDate = (isoDateString) => {
     if (!isoDateString) return 'N/A';
     try {
         const date = new Date(isoDateString);
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (isNaN(date.getTime())) return 'N/A';
+
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: 'UTC'
+        });
     } catch (e) {
         return 'N/A';
     }
@@ -99,12 +106,13 @@ const CourseDetail = () => {
                     ),
                     // Ensure dates are formatted correctly
                     applicationDates: {
-                        applyBefore: formatDate(courseData.applyBefore),
-                        postedOn: formatDate(courseData.createdAt) // or courseData.postedOn
+                        applyBefore: formatDate(courseData.application_dateline),
+                        postedOn: formatDate(courseData.createdAt)
                     },
                     // Use fallback for seats if keys differ (e.g., gov_seats vs govSeats)
                     govSeats: courseData.govSeats || courseData.gov_seats || 0,
-                    selfFinancedSeats: courseData.selfFinancedSeats || courseData.self_finance_seats || 0
+                    selfFinancedSeats: courseData.selfFinancedSeats || courseData.self_finance_seats || 0,
+                    logoUrl: courseData.college.profileImageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
                 };
 
                 setData(formattedData);
@@ -155,7 +163,6 @@ const CourseDetail = () => {
     return (
         <div className={styles.courseDetailPage}>
             <div className={styles.courseContainer}>
-                {/* Header Section - Fixed Image Access */}
                 <div className={styles.headerSection}>
                     <div className={styles.headerContent}>
                         <img
@@ -164,7 +171,7 @@ const CourseDetail = () => {
                             className={styles.collegeLogo}
                         />
                         <div className={styles.collegeInfo}>
-                            <h1 className={styles.collegeName}>{data.collegeName}</h1>
+                            <h1 className={styles.collegeName}>{data.college.collegeName}</h1>
                             <p className={styles.courseTitle}>{data.title}</p>
                         </div>
                     </div>
@@ -174,7 +181,7 @@ const CourseDetail = () => {
                     <div className={styles.leftColumn}>
                         <div className={styles.contentSection}>
                             <SectionTitle>Description</SectionTitle>
-                            <p className={styles.descriptionText}>{data.fullDescription}</p>
+                            <p className={styles.descriptionText}>{data.description}</p>
                         </div>
 
                         <div className={styles.contentSection}>
