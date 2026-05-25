@@ -112,7 +112,7 @@ const CourseDetail = () => {
                     // Use fallback for seats if keys differ (e.g., gov_seats vs govSeats)
                     govSeats: courseData.govSeats || courseData.gov_seats || 0,
                     selfFinancedSeats: courseData.selfFinancedSeats || courseData.self_finance_seats || 0,
-                    logoUrl: courseData.logoUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
+                    logoUrl: courseData.college.profileImageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
                 };
 
                 setData(formattedData);

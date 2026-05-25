@@ -57,12 +57,15 @@ function ApplicationForm() {
                     ...courseData,
                     eligibility: eligibilityDisplay,
                     meritRanking: meritRankingDisplay,
-                    logoUrl: courseData.logoUrl || '/default_college_logo.png'
+                    logoUrl: courseData.college.profileImageUrl || '/default_college_logo.png'
                 });
             } catch (error) {
                 console.error("Error fetching course data:", error);
                 toast.error("Failed to load course details. Redirecting...");
-                navigate(`/user/courses/${courseId}`);
+                // navigate(`/user/courses/${courseId}`);
+                setTimeout(() => {
+                    navigate(`/user/courses/${courseId}`);
+                }, 2000);
             } finally {
                 setCourseLoading(false);
             }
@@ -84,6 +87,7 @@ function ApplicationForm() {
     const totalMerit = applicationPreviewData?.applicationData?.totalMeritScore || 0;
 
     const handleApplicationTypeChange = (e) => {
+        if (isSuccess) return;
         setFormData(prev => ({
             ...prev,
             applicationType: e.target.value
@@ -92,6 +96,8 @@ function ApplicationForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSuccess) return;
+
         const token = localStorage.getItem('authToken');
 
         if (!applicationPreviewData) {
@@ -117,7 +123,7 @@ function ApplicationForm() {
                 setIsSuccess(true);
                 toast.success("Application submitted successfully!");
                 localStorage.removeItem('applicationPreviewData');
-                setTimeout(() => navigate(`/user/courses/${courseId}`), 3000);
+                // setTimeout(() => navigate(`/user/courses/${courseId}`), 3000);
             } else {
                 const result = await response.json();
                 toast.error(`Submission failed: ${result.message || 'Server error'}`);
@@ -167,12 +173,10 @@ function ApplicationForm() {
         );
     }
 
-    if (!course || !applicationPreviewData) return null;
+    if (!course || (!applicationPreviewData && !isSuccess)) return null;
 
     return (
         <>
-            <ToastContainer position="top-right" autoClose={5000} />
-
             <div className={styles.formWrapper} style={{ paddingBottom: '32px', margin: 'auto', backgroundColor: '#fff' }}>
                 {/* Header UI */}
                 <div className={styles.headerSection}>
@@ -191,9 +195,15 @@ function ApplicationForm() {
                     </div>
                 </div>
 
-                <h3 className={styles.sectionTitle}>Submit your application</h3>
+                <h3 className={styles.sectionTitle}>
+                    {isSuccess ? "Application Record" : "Submit your application"}
+                </h3>
                 <p className={styles.sectionSubtitle} style={{ marginBottom: '24px', color: '#6b7280', fontSize: '14px' }}>
-                    The following is required and will only be shared with {course.college?.collegeName || course.collegeName}
+                    {isSuccess
+                        /* Added safe conditional context fallback string mappings */
+                        ? `Your application has been safely registered with ${course.college?.collegeName || course.collegeName}.`
+                        : `The following is required and will only be shared with ${course.college?.collegeName || course.collegeName}`
+                    }
                 </p>
 
                 <form onSubmit={handleSubmit}>
@@ -207,7 +217,6 @@ function ApplicationForm() {
                             <input type="email" value={formData.emailAddress} readOnly style={{ backgroundColor: '#f9fafb' }} />
                         </div>
                     </div>
-
 
                     <div className={styles.grid} style={{ marginTop: '16px' }}>
                         <div className={styles.inputGroup}>
@@ -232,6 +241,7 @@ function ApplicationForm() {
                                     value="Higher Education Grant"
                                     checked={formData.applicationType === 'Higher Education Grant'}
                                     onChange={handleApplicationTypeChange}
+                                    disabled={isSuccess}
                                     style={{ margin: 0, width: 'auto' }}
                                     required
                                 />
@@ -245,6 +255,7 @@ function ApplicationForm() {
                                     value="Self Financed"
                                     checked={formData.applicationType === 'Self Financed'}
                                     onChange={handleApplicationTypeChange}
+                                    disabled={isSuccess}
                                     style={{ margin: 0, width: 'auto' }}
                                     required
                                 />
@@ -268,74 +279,77 @@ function ApplicationForm() {
                     </div>
 
                     {/* Merit Ranking Details Section */}
-                    <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '30px', padding: '10px' }}>
-                        <h4 className={styles.subHeading} style={{ fontSize: '16px', fontWeight: 500, marginBottom: '16px' }}>
-                            Merit Ranking Details
-                        </h4>
-                        <p className={styles.sectionSubtitle} style={{ marginTop: '8px', marginBottom: '24px', color: '#6b7280', fontSize: '14px' }}>
-                            The merit score has been securely calculated based on your subject marks and the course's weighted criteria.
-                        </p>
+                    {/* Rendered only if preview data or breakdown exists to prevent empty arrays throwing map exceptions post-submit */}
+                    {meritSubjectInputs.length > 0 && (
+                        <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '30px', padding: '10px' }}>
+                            <h4 className={styles.subHeading} style={{ fontSize: '16px', fontWeight: 500, marginBottom: '16px' }}>
+                                Merit Ranking Details
+                            </h4>
+                            <p className={styles.sectionSubtitle} style={{ marginTop: '8px', marginBottom: '24px', color: '#6b7280', fontSize: '14px' }}>
+                                The merit score has been securely calculated based on your subject marks and the course's weighted criteria.
+                            </p>
 
-                        <div className={styles.grid} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-                            {meritSubjectInputs.map((input, index) => (
-                                <div className={styles.inputGroup} key={index}>
-                                    <label style={{ fontSize: '13px', fontWeight: '500' }}>{input.label}</label>
-                                    <input
-                                        type="text"
-                                        value={input.scoreDisplay}
-                                        readOnly
-                                        style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', padding: '8px', width: '100%' }}
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                            <div className={styles.grid} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                                {meritSubjectInputs.map((input, index) => (
+                                    <div className={styles.inputGroup} key={index}>
+                                        <label style={{ fontSize: '13px', fontWeight: '500' }}>{input.label}</label>
+                                        <input
+                                            type="text"
+                                            value={input.scoreDisplay}
+                                            readOnly
+                                            style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', padding: '8px', width: '100%' }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
 
-                        <div className={styles.inputGroup} style={{ marginTop: '16px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: '600' }}>Total</label>
-                            <input
-                                type="text"
-                                value={totalMerit}
-                                readOnly
-                                style={{
-                                    backgroundColor: '#f9fafb',
-                                    border: '1px solid #e5e7eb',
-                                    padding: '12px',
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    fontSize: '16px'
-                                }}
-                            />
+                            <div className={styles.inputGroup} style={{ marginTop: '16px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: '600' }}>Total Marks Merit</label>
+                                <input
+                                    type="text"
+                                    value={totalMerit}
+                                    readOnly
+                                    style={{
+                                        backgroundColor: '#f9fafb',
+                                        border: '1px solid #e5e7eb',
+                                        padding: '12px',
+                                        width: '100%',
+                                        fontWeight: 'bold',
+                                        fontSize: '16px'
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Footer / Submit Section */}
                     <div style={{ marginTop: '30px' }}>
-                        <p className={styles.termsText} style={{ color: '#6b7280', fontSize: '13px', lineHeight: '1.5' }}>
-                            By sending the request you can confirm that you accept our <strong style={{ color: '#4E296C' }}>Terms of Service</strong> and <strong style={{ color: '#4E296C' }}>Privacy Policy</strong>
-                        </p>
+                        {!isSuccess && (
+                            <p className={styles.termsText} style={{ color: '#6b7280', fontSize: '13px', lineHeight: '1.5', marginBottom: '15px' }}>
+                                By sending the request you can confirm that you accept our <strong style={{ color: '#4E296C' }}>Terms of Service</strong> and <strong style={{ color: '#4E296C' }}>Privacy Policy</strong>
+                            </p>
+                        )}
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || isSuccess}
                             style={{
-                                marginTop: '15px',
                                 padding: '10px 25px',
-                                backgroundColor: loading ? '#9ca3af' : '#4E296C',
+                                backgroundColor: isSuccess ? '#9ca3af' : (loading ? '#9ca3af' : '#4E296C'), // Green color if success
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '4px',
-                                cursor: loading ? 'not-allowed' : 'pointer',
+                                cursor: (loading || isSuccess) ? 'not-allowed' : 'pointer',
                                 fontSize: '16px',
                                 fontWeight: 500,
                                 width: 'auto',
                                 transition: 'background-color 0.2s'
                             }}>
-                            {loading ? 'Submitting...' : 'Submit Application'}
+                            {loading ? 'Submitting...' : (isSuccess ? 'Already Submitted' : 'Submit Application')}
                         </button>
                     </div>
                 </form>
             </div>
-            <ToastContainer
-            />
+            <ToastContainer />
         </>
     );
 }

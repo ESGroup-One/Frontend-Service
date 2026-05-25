@@ -37,7 +37,7 @@ const AllCoursesPage = () => {
                 });
 
                 setCourses(response.data);
-                console.log(response.data)
+                // console.log(response.data)
                 setIsLoading(false);
             } catch (err) {
                 console.error("Error fetching courses:", err);

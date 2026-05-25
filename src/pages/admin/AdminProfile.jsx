@@ -1,90 +1,58 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import styles from "./profile.module.css";
-import { Upload, Loader2, User } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { UPLOAD_PROFILE_IMAGE_URL } from "../../constant";
 
 import fallbackImage from "../user/styles/Avatar.png";
 
-const API_BASE_URL = 'http://localhost:8000/api';
-
 function AdminProfile() {
-  const [userData, setUserData] = useState(null);
-  const [collegeData, setCollegeData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, updateUser } = useAuth(); // Read user information cleanly from context
   const [imageLoading, setImageLoading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
-  const { updateUser } = useAuth();
 
-  const fetchUserData = async () => {
-    setLoading(true);
-    setError(null);
-    const authToken = localStorage.getItem("authToken");
-
-    if (!authToken) {
-      setError("Authentication token not found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${API_BASE_URL}/profile`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      const newUserData = response.data.user;
-
-      setUserData(response.data.user);
-      setCollegeData(response.data.college);
-      updateUser(newUserData);
-      console.log(userData)
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      setError("Failed to fetch user profile. " + (err.response?.data?.message || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  // Handler for image upload
+  // Handler for image upload / update
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      // alert("File size exceeds 5MB limit.");
+      setUploadError("File size exceeds 5MB limit.");
       return;
     }
 
     setImageLoading(true);
+    setUploadError(null);
+
     const authToken = localStorage.getItem("authToken");
     const formData = new FormData();
-    formData.append("image", file);
+    
+    // Key must match exactly with @RequestParam("file") in Spring Boot
+    formData.append("file", file); 
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/profile`, formData, {
+      // Connect directly through the gateway using your custom constant route
+      const response = await axios.post(UPLOAD_PROFILE_IMAGE_URL(user.id), formData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
-      setUserData(response.data.user);
-      fetchUserData()
+      // The Spring Boot endpoint sends back the complete updated User object
+      const updatedUser = response.data; 
+
+      // Save to localStorage and update context state globally
+      updateUser(updatedUser); 
 
     } catch (err) {
       console.error("Error uploading image:", err);
-      // alert("Failed to update profile image. Check console for details.");
+      setUploadError(err.response?.data?.message || "Failed to update profile image.");
     } finally {
       setImageLoading(false);
-      event.target.value = null;
+      event.target.value = null; // Reset input field choice assignment
     }
   };
 
@@ -92,8 +60,8 @@ function AdminProfile() {
     fileInputRef.current.click();
   };
 
-
-  if (loading) {
+  // Safe fallback guard block if AuthContext is validating active tokens during page mount
+  if (!user) {
     return (
       <div className={styles.loadingContainer}>
         <Loader2 size={32} className={styles.spinner} />
@@ -102,27 +70,8 @@ function AdminProfile() {
     );
   }
 
-  if (error) {
-    return (
-      <div className={styles.errorContainer}>
-        <p className={styles.errorText}> {error}</p>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className={styles.errorContainer}>
-        <p className={styles.errorText}>No user data available.</p>
-      </div>
-    );
-  }
-
-  const academicInfo = userData.academicInfo || {};
-  const marks = Object.entries(academicInfo).filter(([key]) => key !== 'stream');
-
-  const profileImage = userData.image || fallbackImage;
-
+  // Maps cleanly to your updated Spring Boot entity property key
+  const profileImage = user.profileImageUrl || fallbackImage;
 
   return (
     <div>
@@ -131,6 +80,12 @@ function AdminProfile() {
         <p className={styles.sectionSubtitle}>
           This is your personal information.
         </p>
+
+        {uploadError && (
+          <div className={styles.errorContainer}>
+            <p className={styles.errorText}>{uploadError}</p>
+          </div>
+        )}
 
         <div className={styles.photoSection}>
           <div className={styles.photoLabel}>
@@ -180,7 +135,7 @@ function AdminProfile() {
           />
         </div>
 
-        {/* Personal Details */}
+        {/* Personal Details Section */}
         <div className={styles.detailsSection}>
           <div className="sub-container">
             <h4 className={styles.subHeading}>Personal Details</h4>
@@ -188,16 +143,17 @@ function AdminProfile() {
             <div className={styles.grid}>
               <div className={styles.inputGroup}>
                 <label>Name</label>
-                <input type="text" value={userData.name || "N/A"} readOnly />
+                <input type="text" value={user.fullName || "N/A"} readOnly />
               </div>
               <div className={styles.inputGroup}>
                 <label>Email</label>
-                <input type="email" value={userData.email || "N/A"} readOnly />
+                <input type="email" value={user.email || "N/A"} readOnly />
               </div>
             </div>
           </div>
         </div>
 
+        {/* College Details Section */}
         <div className={styles.detailsSection}>
           <div className="sub-container">
             <h4 className={styles.subHeading}>College Details</h4>
@@ -205,11 +161,15 @@ function AdminProfile() {
             <div className={styles.grid}>
               <div className={styles.inputGroup}>
                 <label>College Name</label>
-                <input type="text" value={collegeData?.name || "N/A"} readOnly />
+                <input type="text" value={user.collegeName || "N/A"} readOnly />
               </div>
               <div className={styles.inputGroup}>
-                <label>Website Url</label>
-                <input type="email" value={collegeData?.website || "N/A"} readOnly />
+                <label>Website URL</label>
+                <input type="text" value={user.websiteUrl || "N/A"} readOnly />
+              </div>
+              <div className={styles.inputGroup}>
+                <label>Contact Info</label>
+                <input type="text" value={user.contactInfo || "N/A"} readOnly />
               </div>
             </div>
           </div>

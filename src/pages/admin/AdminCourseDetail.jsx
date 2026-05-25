@@ -135,10 +135,11 @@ const AdminCourseDetail = () => {
                         postedOn: formatDate(courseData.createdAt)
                     },
 
-                    logoUrl: courseData.logoUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
+                    logoUrl: courseData.college.profileImageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw5Zw2QqSIcuFJeXBQwqX9XvX-AyvMgIh5ehka4eyPjA&s&ec=121657078',
                 };
 
                 setData(processedData);
+                // console.log(processedData)
                 setError(null);
             } catch (err) {
                 console.error("Fetch Course Error:", err);

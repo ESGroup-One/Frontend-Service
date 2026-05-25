@@ -1,89 +1,59 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import styles from "./profile.module.css";
-import { Upload, Loader2, User } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { useAuth } from '../../context/AuthContext';
+import { UPLOAD_PROFILE_IMAGE_URL } from "../../constant";
 
 import fallbackImage from "../user/styles/Avatar.png";
 
-const API_BASE_URL = 'http://localhost:8000/api';
-
 function SuperAdminProfile() {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, updateUser } = useAuth(); // Read live state directly from AuthContext
   const [imageLoading, setImageLoading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
-  const { updateUser } = useAuth();
 
-  const fetchUserData = async () => {
-    setLoading(true);
-    setError(null);
-    const authToken = localStorage.getItem("authToken");
-
-    if (!authToken) {
-      setError("Authentication token not found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${API_BASE_URL}/profile`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      setUserData(response.data.user);
-      const newUserData = response.data.user;
-      updateUser(newUserData);
-
-
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      setError("Failed to fetch user profile. " + (err.response?.data?.message || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  // Handler for image upload
+  // Handler for image upload/update
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      // alert("File size exceeds 5MB limit.");
+    // 5MB limit
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("File size exceeds 5MB limit.");
       return;
     }
 
     setImageLoading(true);
+    setUploadError(null);
+
     const authToken = localStorage.getItem("authToken");
     const formData = new FormData();
-    formData.append("image", file);
+
+    // Key must match exactly with @RequestParam("file") in Spring Boot
+    formData.append("file", file);
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/profile`, formData, {
+      // Direct request through API Gateway (Port 8081) using your constant
+      const response = await axios.post(UPLOAD_PROFILE_IMAGE_URL(user.id), formData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      const newUserData = response.data.user;
-      setUserData(response.data.user);
-      updateUser(newUserData);
-      fetchUserData()
+
+      // Spring Boot returns the updated User entity object
+      const updatedUser = response.data;
+
+      // Sync the context and localStorage across the application system instantly
+      updateUser(updatedUser);
 
     } catch (err) {
       console.error("Error uploading image:", err);
-      // alert("Failed to update profile image. Check console for details.");
+      setUploadError(err.response?.data?.message || "Failed to update profile image.");
     } finally {
       setImageLoading(false);
-      event.target.value = null;
+      event.target.value = null; // Clear choice input field assignment
     }
   };
 
@@ -91,8 +61,8 @@ function SuperAdminProfile() {
     fileInputRef.current.click();
   };
 
-
-  if (loading) {
+  // Fallback safe checks if AuthContext is still resolving on mount
+  if (!user) {
     return (
       <div className={styles.loadingContainer}>
         <Loader2 size={32} className={styles.spinner} />
@@ -101,27 +71,8 @@ function SuperAdminProfile() {
     );
   }
 
-  if (error) {
-    return (
-      <div className={styles.errorContainer}>
-        <p className={styles.errorText}> {error}</p>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className={styles.errorContainer}>
-        <p className={styles.errorText}>No user data available.</p>
-      </div>
-    );
-  }
-
-  const academicInfo = userData.academicInfo || {};
-  const marks = Object.entries(academicInfo).filter(([key]) => key !== 'stream');
-
-  const profileImage = userData.image || fallbackImage;
-
+  // Use the correct profileImageUrl key from your Spring Boot entity document
+  const profileImage = user.profileImageUrl || fallbackImage;
 
   return (
     <div>
@@ -130,6 +81,12 @@ function SuperAdminProfile() {
         <p className={styles.sectionSubtitle}>
           This is your personal information.
         </p>
+
+        {uploadError && (
+          <div className={styles.errorContainer}>
+            <p className={styles.errorText}>{uploadError}</p>
+          </div>
+        )}
 
         <div className={styles.photoSection}>
           <div className={styles.photoLabel}>
@@ -187,11 +144,15 @@ function SuperAdminProfile() {
             <div className={styles.grid}>
               <div className={styles.inputGroup}>
                 <label>Name</label>
-                <input type="text" value={userData.name || "N/A"} readOnly />
+                <input type="text" value={user.fullName || "N/A"} readOnly />
               </div>
               <div className={styles.inputGroup}>
                 <label>Email</label>
-                <input type="email" value={userData.email || "N/A"} readOnly />
+                <input type="email" value={user.email || "N/A"} readOnly />
+              </div>
+              <div className={styles.inputGroup}>
+                <label>Role</label>
+                <input type="text" value={user.role || "N/A"} style={{ textTransform: 'capitalize' }} readOnly />
               </div>
             </div>
           </div>

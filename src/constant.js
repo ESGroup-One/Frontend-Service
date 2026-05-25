@@ -14,6 +14,7 @@ export const USER_AGGREGATE_URL = (id) => `${USERS_URL}/aggregate/${id}`;
 export const DELETE_USER_URL = (id) => `${USERS_URL}/${id}`;
 export const REGISTER_INITIATE_URL = (indexNumber) => `${AUTH_BASE}/register/initiate/${indexNumber}`;
 export const REGISTER_COMPLETE_URL = `${AUTH_BASE}/register/complete`;
+export const UPLOAD_PROFILE_IMAGE_URL = (id) => `${USERS_URL}/${id}/upload-image`;
 
 // College Endpoints
 export const COLLEGES_URL = `${REPO_BASE}/colleges`;
@@ -28,6 +29,10 @@ export const MY_COURSES_URL = `${COURSES_URL}/my-courses`;
 export const ADD_COURSE_URL = `${COURSES_URL}/add`;
 export const GET_COURSE_BY_ID = (id) => `${COURSES_URL}/${id}`;
 export const MY_COURSE_COUNT_URL = `${COURSES_URL}/my-count`;
+
+// Recommendation Endpoints
+export const RECOMMENDATIONS_BASE = `${REPO_BASE}/recommendations`;
+export const GET_STUDENT_RECOMMENDATIONS_URL = (studentId) => `${RECOMMENDATIONS_BASE}/student/${studentId}`;
 
 // Placement Service
 export const PLACEMENT_BASE = `${BASE_URL}/placementservice/api/applications`;
