@@ -8,10 +8,19 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "../../styles/loginForm.css";
 import { Login_URL } from "../../constant";
-import logo from "../../assets/logo.png";
 
 const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const getRedirectPath = (role) => {
+    const normalizedRole = role?.toLowerCase();
+
+    if (normalizedRole === "student") return "/user";
+    if (normalizedRole === "admin") return "/admin";
+    if (normalizedRole === "superadmin") return "/superadmin";
+
+    return "/";
 };
 
 export default function UserLogin() {
@@ -26,12 +35,15 @@ export default function UserLogin() {
 
     const validateForm = () => {
         const newErrors = {};
+        const trimmedIdentifier = identifier.trim();
 
-        const isIndexNumber = /^\d{11}$/.test(identifier);
-        const isEmail = isValidEmail(identifier);
+        const isIndexNumber = /^\d{11}$/.test(trimmedIdentifier);
+        const isEmail = isValidEmail(trimmedIdentifier);
 
-        if (!isIndexNumber && !isEmail) {
-            newErrors.identifier = "Must be a valid 11-digit Index Number or a valid Email address.";
+        if (!trimmedIdentifier) {
+            newErrors.identifier = "Email or index number is required.";
+        } else if (!isIndexNumber && !isEmail) {
+            newErrors.identifier = "Must be a valid 11-digit index number or email address.";
         }
 
         if (!password) {
@@ -44,16 +56,8 @@ export default function UserLogin() {
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            let redirectPath = '/';
-            if (userRole === 'student') {
-                redirectPath = '/user';
-            } else if (userRole === 'admin') {
-                redirectPath = '/admin';
-            } else if (userRole === 'superadmin' || userRole === 'superAdmin') {
-                redirectPath = '/superadmin';
-            }
+            const redirectPath = getRedirectPath(userRole);
 
-            // Only navigate if the path is different to prevent navigation throttling
             if (window.location.pathname !== redirectPath) {
                 navigate(redirectPath, { replace: true });
             }
@@ -62,51 +66,50 @@ export default function UserLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!validateForm()) return;
+
         setLoading(true);
 
-        // Inside validateForm: 
-        const isIndexNumber = /^\d{11}$/.test(identifier);
-        // Send a payload that consistently matches Postman's expected keys
         const requestBody = {
+            identifier: identifier.trim(),
             password,
-            // Always send the identifier under 'indexNumber' if it's not an email, or pass it as email if your API requires an email key
-            indexNumber: isIndexNumber ? identifier : identifier,
         };
 
         try {
-            const response = await axios.post(`${Login_URL}`, requestBody);
+            const response = await axios.post(Login_URL, requestBody);
 
-            if (response.data.status === 'success' || response.status === 200) {
-                localStorage.setItem('authToken', response.data.token);
-                localStorage.setItem('userDetails', JSON.stringify(response.data.user));
-                localStorage.setItem('userRole', response.data.user.role);
+            const token = response.data?.token;
+            const user = response.data?.user;
+            const role = user?.role?.toLowerCase();
 
-                toast.success("Login successful.", {
-                    position: "top-right",
-                    autoClose: 3000,
-                    theme: "light",
-                });
-
-                window.dispatchEvent(new Event("authChanged"));
-
-                const role = response.data.user.role;
-                let redirectPath = '/';
-                if (role === 'student') {
-                    redirectPath = '/user';
-                } else if (role === 'admin') {
-                    redirectPath = '/admin';
-                } else if (role === 'superadmin') {
-                    redirectPath = '/superadmin';
-                }
-                navigate(redirectPath);
-
-            } else {
-                toast.error(response.data.message || "Invalid credentials!");
+            if (!token || !user || !role) {
+                toast.error("Login response is incomplete.");
+                return;
             }
+
+            localStorage.setItem("authToken", token);
+            localStorage.setItem("userDetails", JSON.stringify(user));
+            localStorage.setItem("userRole", role);
+
+            window.dispatchEvent(new Event("authChanged"));
+
+            toast.success("Login successful.", {
+                position: "top-right",
+                autoClose: 1500,
+                theme: "light",
+            });
+
+            navigate(getRedirectPath(role), { replace: true });
         } catch (error) {
             console.error("Login error:", error);
-            const errorMessage = error.response?.data?.message || "Something went wrong.";
+
+            const errorMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                error.response?.data ||
+                "Something went wrong.";
+
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -114,7 +117,7 @@ export default function UserLogin() {
     };
 
     const togglePasswordVisibility = () => {
-        setShowPassword(prevState => !prevState);
+        setShowPassword((prevState) => !prevState);
     };
 
     return (
@@ -142,6 +145,7 @@ export default function UserLogin() {
                         value={identifier}
                         onChange={(e) => setIdentifier(e.target.value)}
                         className="form-input"
+                        autoComplete="username"
                     />
                     {errors.identifier && (
                         <p className="error-message">{errors.identifier}</p>
@@ -159,24 +163,29 @@ export default function UserLogin() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="form-input"
+                        autoComplete="current-password"
                     />
                     <button
                         type="button"
                         onClick={togglePasswordVisibility}
                         style={{
-                            position: 'absolute',
-                            right: '10px',
-                            top: '55%',
-                            transform: 'translateY(-50%)',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '5px',
+                            position: "absolute",
+                            right: "10px",
+                            top: "55%",
+                            transform: "translateY(-50%)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: "5px",
                             zIndex: 10,
                         }}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                        {showPassword ? <EyeOff size={20} color="#777" /> : <Eye size={20} color="#777" />}
+                        {showPassword ? (
+                            <EyeOff size={20} color="#777" />
+                        ) : (
+                            <Eye size={20} color="#777" />
+                        )}
                     </button>
                     {errors.password && (
                         <p className="error-message">{errors.password}</p>
@@ -197,6 +206,7 @@ export default function UserLogin() {
                     Signup
                 </Link>
             </p>
+
             <ToastContainer />
         </div>
     );

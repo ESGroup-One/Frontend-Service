@@ -12,7 +12,7 @@ import { ADD_COURSE_URL } from '../../constant';
 const STANDARD_SUBJECTS = [
     "English", "Dzongkha", "Mathematics", "Physics", "Chemistry",
     "Biology", "History", "Geography", "Economics", "Commerce",
-    "Accountancy", "Rigzhung", "Best Subject 1", "Best Subject 2",
+    "Accountancy", "Rigzhung","ICT", "Best Subject 1", "Best Subject 2",
     "Best Subject 3", "Best Subject 4"
 ];
 
@@ -152,19 +152,19 @@ const AddCoursePage = () => {
 
                 <form onSubmit={handleSubmit}>
                     {/* Course & Description */}
-                    <div className={formStyles.grid}>
+                    <div className={styles.basicGrid}>
                         <div className={formStyles.formGroup}>
                             <label htmlFor="title" className={formStyles.label}>Course</label>
                             <input id="title" type="text" value={formData.title} onChange={handleChange} placeholder="Enter course name" className={formStyles.input} required />
                         </div>
                         <div className={formStyles.formGroup}>
                             <label htmlFor="description" className={formStyles.label}>Description</label>
-                            <textarea id="description" value={formData.description} onChange={handleChange} placeholder="Enter the course description" className={formStyles.input} rows="1" required />
+                            <textarea id="description" value={formData.description} onChange={handleChange} placeholder="Enter the course description" className={`${formStyles.input} ${styles.descriptionInput}`} rows="1" required />
                         </div>
                     </div>
 
                     {/* Dateline & Seats */}
-                    <div className={formStyles.grid}>
+                    <div className={styles.seatsGrid}>
                         <div className={formStyles.formGroup}>
                             <label htmlFor="application_dateline" className={formStyles.label}>Application Dateline</label>
                             <input id="application_dateline" type="date" value={formData.application_dateline} onChange={handleChange} className={formStyles.input} required />
@@ -179,15 +179,15 @@ const AddCoursePage = () => {
                         </div>
                     </div>
 
-                    <div className={formStyles.grid}>
+                    <div className={styles.rulesGrid}>
                         {/* --- Eligibility Criteria --- */}
-                        <div className={formStyles.formGroup}>
+                        <div className={`${formStyles.formGroup} ${styles.ruleSection}`}>
                             <h3 className={styles.sectionTitle}>Eligibility Criteria</h3>
                             <label htmlFor="aggregate_marks" className={formStyles.label}>Minimum aggregate marks of</label>
-                            <input id="aggregate_marks" type="number" value={formData.aggregate_marks} onChange={handleChange} placeholder="Enter minimum aggregate marks required" className={formStyles.input} style={{ marginBottom: '16px' }} />
+                            <input id="aggregate_marks" type="number" value={formData.aggregate_marks} onChange={handleChange} placeholder="Enter minimum aggregate marks required" className={formStyles.input} style={{ marginBottom: '16px' }} />
                             <label className={formStyles.label}>Minimum marks required</label>
                             {requiredMarks.map((item, index) => (
-                                <div key={index} className={formStyles.dynamicRow}>
+                                <div key={index} className={styles.dynamicFieldRow}>
                                     <input
                                         type="text"
                                         list="subject-options"
@@ -205,12 +205,11 @@ const AddCoursePage = () => {
                         </div>
 
                         {/* --- Merit Ranking --- */}
-                        <div className={formStyles.formGroup}>
+                        <div className={`${formStyles.formGroup} ${styles.ruleSection}`}>
                             <h3 className={styles.sectionTitle}>Merit Ranking Details</h3>
                             {meritDetails.map((item, index) => (
-                                <div key={index} className={formStyles.dynamicRow}>
+                                <div key={index} className={styles.dynamicFieldRow}>
                                     <input
-                                        style={{ marginTop: "24px" }}
                                         type="text"
                                         list="subject-options" // Use the SAME datalist ID here
                                         value={item.subject}
@@ -218,8 +217,8 @@ const AddCoursePage = () => {
                                         placeholder="Subject"
                                         className={formStyles.input}
                                     />
-                                    <span style={{ marginTop: "24px" }} className={formStyles.colon}>:</span>
-                                    <input style={{ marginTop: "24px" }} type="number" value={item.times} onChange={(e) => handleListChange(setMeritDetails, meritDetails, index, 'times', e.target.value)} placeholder="Weightage" className={formStyles.input} />
+                                    <span className={formStyles.colon}>:</span>
+                                    <input type="number" value={item.times} onChange={(e) => handleListChange(setMeritDetails, meritDetails, index, 'times', e.target.value)} placeholder="Weightage" className={formStyles.input} />
                                     {meritDetails.length > 1 && <button type="button" onClick={() => removeListField(setMeritDetails, meritDetails, index)} className={formStyles.removeButton}><X size={16} /></button>}
                                 </div>
                             ))}

@@ -1,5 +1,5 @@
 .pageContainer {
-  padding: 32px;
+  padding: 32px 24px;
   background-color: #ffffff;
 }
 
@@ -39,7 +39,49 @@
 /* Main Form Wrapper */
 .formWrapper {
   background-color: var(--white);
-  padding: 32px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 0 36px;
+}
+
+.basicGrid,
+.seatsGrid,
+.rulesGrid {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.basicGrid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.seatsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rulesGrid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 40px;
+  margin-top: 24px;
+}
+
+.ruleSection {
+  min-width: 0;
+}
+
+.descriptionInput {
+  min-height: 48px;
+  resize: vertical;
+}
+
+.dynamicFieldRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px minmax(120px, 0.8fr) 34px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 /* Section Titles (e.g., "Eligibility Criteria") */
@@ -63,4 +105,31 @@
   font-size: 0.875rem;
   color: var(--text-light);
   margin-bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+  .seatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rulesGrid {
+    gap: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 14px;
+  }
+
+  .basicGrid,
+  .seatsGrid,
+  .rulesGrid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .dynamicFieldRow {
+    grid-template-columns: minmax(0, 1fr) 12px minmax(100px, 0.8fr) 32px;
+  }
 }

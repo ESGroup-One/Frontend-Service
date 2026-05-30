@@ -124,11 +124,44 @@
   border-radius: 4px;
   font-size: 0.9rem;
   transition: border-color 0.2s;
+  box-sizing: border-box; /* Ensures width calculations include paddings correctly */
 }
 
 .form-input:focus {
   outline: none;
   border-color: #4E296C;
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field-input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.password-field-toggle {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.password-field-toggle svg {
+  display: block;
 }
 
 .forgot-password {

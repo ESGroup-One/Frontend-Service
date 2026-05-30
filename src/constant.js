@@ -15,12 +15,14 @@ export const DELETE_USER_URL = (id) => `${USERS_URL}/${id}`;
 export const REGISTER_INITIATE_URL = (indexNumber) => `${AUTH_BASE}/register/initiate/${indexNumber}`;
 export const REGISTER_COMPLETE_URL = `${AUTH_BASE}/register/complete`;
 export const UPLOAD_PROFILE_IMAGE_URL = (id) => `${USERS_URL}/${id}/upload-image`;
+export const SET_ADMIN_PASSWORD_URL = `${AUTH_BASE}/register/set-password`;
 
 // College Endpoints
 export const COLLEGES_URL = `${REPO_BASE}/colleges`;
 export const COLLEGE_STATS_URL = `${COLLEGES_URL}/stats`;
 export const COLLEGE_DETAIL_URL = (id) => `${COLLEGES_URL}/${id}`;
 export const DELETE_COLLEGE_URL = (id) => `${COLLEGES_URL}/${id}`;
+export const REGISTER_ADMIN_URL = `${AUTH_BASE}/register/admin`;
 
 // Course Endpoints
 export const COURSES_URL = `${REPO_BASE}/courses`;
@@ -38,3 +40,8 @@ export const GET_STUDENT_RECOMMENDATIONS_URL = (studentId) => `${RECOMMENDATIONS
 export const PLACEMENT_BASE = `${BASE_URL}/placementservice/api/applications`;
 export const CHECK_ELIGIBILITY_URL = (courseId) => `${PLACEMENT_BASE}/check-eligibility/${courseId}`;
 export const SUBMIT_APPLICATION_URL = (courseId) => `${PLACEMENT_BASE}/apply/${courseId}`;
+export const GET_COURSE_APPLICATIONS_URL = (courseId) => `${PLACEMENT_BASE}/course/${courseId}`;
+export const MY_APPLICATIONS_URL = `${PLACEMENT_BASE}/my`;
+export const PLACEMENT_STATUS_URL = `${PLACEMENT_BASE}/placement-status`;
+export const APPLICATION_STATUS_HISTORY_URL = (applicationId) => `${PLACEMENT_BASE}/${applicationId}/history`;
+export const UPDATE_APPLICATION_STATUS_URL = (applicationId) => `${PLACEMENT_BASE}/${applicationId}/status`;
