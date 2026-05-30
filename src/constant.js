@@ -3,6 +3,10 @@ export const BASE_URL = `http://localhost:8081`;
 // Auth Service
 export const AUTH_BASE = `${BASE_URL}/authservice/api/auth`;
 export const Login_URL = `${AUTH_BASE}/login`;
+export const FORGOT_PASSWORD_SEND_OTP_URL = `${AUTH_BASE}/forgot-password/send-otp`;
+export const FORGOT_PASSWORD_VERIFY_OTP_URL = `${AUTH_BASE}/forgot-password/verify-otp`;
+export const FORGOT_PASSWORD_SET_NEW_URL = (token) =>
+  `${AUTH_BASE}/forgot-password/set-new-password/${token}`;
 
 // Repository Service (Spring Boot Backend)
 export const REPO_BASE = `${BASE_URL}/repositoryservice/api`;
