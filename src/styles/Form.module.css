@@ -20,7 +20,9 @@
 
 .input {
   width: 100%;
-  padding: 8px 12px;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 11px 14px;
   font-size: 0.875rem;
   color: var(--text-dark);
   border: 1px solid var(--medium-gray);
@@ -51,15 +53,21 @@
 }
 
 .addButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   background: none;
   border: none;
-  color: var(--medium-gray);
+  color: var(--primary-color);
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 6px;
   padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.addButton:hover {
+  color: var(--primary-color-hover);
 }
 
 .removeButton {

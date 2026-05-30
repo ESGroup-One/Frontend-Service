@@ -13,6 +13,9 @@
 
   import { USERS_URL, USER_COUNTS_URL } from "../../constant";
 
+  const getRoleClass = (role) => (role || "student").toLowerCase();
+  const getStatusClass = (status) => (status || "pending").toLowerCase();
+
   const Users = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedUsers, setSelectedUsers] = useState([]);
@@ -61,7 +64,7 @@
             id: user.id,
             userName: user.fullName || "N/A",
             role: user.role || "student",
-            status: user.verified ? "active" : "pending",
+            status: user.verified || user.isVerified ? "active" : "pending",
             joinedDate: "N/A",
             email: user.email || "N/A",
           }));
@@ -283,7 +286,8 @@
         <div className="users-container">
           <div className="users-header">
             <div className="users-title-section">
-              <p className="users-summary">Total User : {totalUsers}</p>
+              <h1 className="users-title">User Management</h1>
+              <p className="users-summary">Total Users: {totalUsers}</p>
             </div>
 
             <div className="search-container">
@@ -316,6 +320,7 @@
                     />
                   </th>
                   <th>User Name</th>
+                  <th>Email</th>
                   <th>Role</th>
                   <th>Status</th>
                   <th>Joined Date</th>
@@ -326,13 +331,13 @@
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center", padding: "24px" }}>
+                    <td colSpan="7" style={{ textAlign: "center", padding: "24px" }}>
                       Loading users...
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center", padding: "24px" }}>
+                    <td colSpan="7" style={{ textAlign: "center", padding: "24px" }}>
                       No users found.
                     </td>
                   </tr>
@@ -347,11 +352,16 @@
                         />
                       </td>
                       <td>{user.userName}</td>
+                      <td className="user-email-cell">{user.email}</td>
                       <td>
-                        <span className="role-badge">{user.role}</span>
+                        <span className={`role-badge ${getRoleClass(user.role)}`}>
+                          {user.role}
+                        </span>
                       </td>
                       <td>
-                        <span className="status-badge">{user.status}</span>
+                        <span className={`status-badge ${getStatusClass(user.status)}`}>
+                          {user.status}
+                        </span>
                       </td>
                       <td>{user.joinedDate}</td>
                       <td>
@@ -478,6 +488,16 @@
                   onChange={(e) => setEditName(e.target.value)}
                   className="edit-modal-input"
                   placeholder="Enter user name"
+                />
+              </div>
+
+              <div className="edit-modal-field">
+                <label className="edit-modal-label">Email</label>
+                <input
+                  type="email"
+                  value={selectedUser?.email || ""}
+                  className="edit-modal-input"
+                  readOnly
                 />
               </div>
 
