@@ -158,7 +158,7 @@
 /* --- Column Specifics --- */
 .mono {
   color: var(--text-dark);
-  font-weight: 0.875rem;
+  font-weight: 600;
 }
 
 .nameCell {
@@ -287,4 +287,283 @@
   background-color: var(--primary-color);
   color: white;
   border-color: var(--primary-color);
+}
+
+.sortDropdown {
+  border: 1px solid var(--border-color);
+  background: white;
+  color: var(--text-dark);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+}
+
+.statusCell {
+  min-width: 220px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.statusPending {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.statusShortlisted {
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+.statusCtt {
+  background: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #a5f3fc;
+}
+
+.statusInterview {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.statusPlaced {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.statusRejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.statusClosed {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.progressTracker {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(26px, 1fr));
+  align-items: start;
+  gap: 4px;
+  margin-top: 10px;
+  max-width: 260px;
+}
+
+.progressStep {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: #9ca3af;
+}
+
+.progressStep::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: #e5e7eb;
+  z-index: 0;
+}
+
+.progressStep:first-child::before {
+  display: none;
+}
+
+.progressDone::before {
+  background: #4E296C;
+}
+
+.progressDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  border: 2px solid #e5e7eb;
+  position: relative;
+  z-index: 1;
+}
+
+.progressDone .progressDot,
+.progressActive .progressDot {
+  background: #4E296C;
+  border-color: #4E296C;
+}
+
+.progressLabel {
+  font-size: 9px;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 62px;
+}
+
+.progressActive .progressLabel {
+  color: #4E296C;
+  font-weight: 700;
+}
+
+.statusSelect {
+  min-width: 150px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: white;
+  color: var(--text-dark);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.statusSelect:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.lockedText {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.historyButton {
+  border: 1px solid var(--border-color);
+  background: white;
+  color: var(--primary-color);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.historyButton:hover {
+  border-color: var(--primary-color);
+}
+
+.historyPanel {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 20px;
+  background: #fff;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.historyHeader h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.historyHeader button {
+  border: none;
+  background: transparent;
+  color: var(--primary-color);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timelineItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+}
+
+.timelineDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4E296C;
+  margin-top: 5px;
+}
+
+.timelineTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.timelineMeta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.timelineNote {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.historyState {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  .courseHeader,
+  .tableHeaderRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sortSection {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sortDropdown {
+    max-width: 180px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .courseName {
+    font-size: 20px;
+  }
 }

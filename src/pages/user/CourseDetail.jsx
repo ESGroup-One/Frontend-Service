@@ -133,7 +133,7 @@ const CourseDetail = () => {
                         setEligibilityMessage(result.reasons?.join(' ') || result.message);
                     } else {
                         setIsEligible(false);
-                        setEligibilityMessage(result.message || "Eligibility check failed.");
+                        setEligibilityMessage(result.message || result.detail || result.error || "Eligibility check failed.");
                     }
                 } else {
                     setEligibilityMessage("Please login to check eligibility.");

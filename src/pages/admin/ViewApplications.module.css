@@ -38,6 +38,20 @@
     color: var(--text-light);
 }
 
+.stateMessage,
+.errorMessage {
+    margin: 24px 0;
+    font-size: 14px;
+}
+
+.stateMessage {
+    color: var(--text-light);
+}
+
+.errorMessage {
+    color: #b91c1c;
+}
+
 .sortSection {
     display: flex;
     align-items: center;
@@ -162,4 +176,34 @@
 
 .activePage:hover {
     background-color: #4338ca;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+    }
+
+    .subHeader {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .sortSection {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .pagination {
+        justify-content: center;
+    }
 }

@@ -40,3 +40,8 @@ export const GET_STUDENT_RECOMMENDATIONS_URL = (studentId) => `${RECOMMENDATIONS
 export const PLACEMENT_BASE = `${BASE_URL}/placementservice/api/applications`;
 export const CHECK_ELIGIBILITY_URL = (courseId) => `${PLACEMENT_BASE}/check-eligibility/${courseId}`;
 export const SUBMIT_APPLICATION_URL = (courseId) => `${PLACEMENT_BASE}/apply/${courseId}`;
+export const GET_COURSE_APPLICATIONS_URL = (courseId) => `${PLACEMENT_BASE}/course/${courseId}`;
+export const MY_APPLICATIONS_URL = `${PLACEMENT_BASE}/my`;
+export const PLACEMENT_STATUS_URL = `${PLACEMENT_BASE}/placement-status`;
+export const APPLICATION_STATUS_HISTORY_URL = (applicationId) => `${PLACEMENT_BASE}/${applicationId}/history`;
+export const UPDATE_APPLICATION_STATUS_URL = (applicationId) => `${PLACEMENT_BASE}/${applicationId}/status`;
