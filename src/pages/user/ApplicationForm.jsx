@@ -126,7 +126,7 @@ function ApplicationForm() {
                 // setTimeout(() => navigate(`/user/courses/${courseId}`), 3000);
             } else {
                 const result = await response.json();
-                toast.error(`Submission failed: ${result.message || 'Server error'}`);
+                toast.error(`Submission failed: ${result.message || result.detail || result.error || 'Server error'}`);
             }
         } catch (error) {
             toast.error("An unexpected error occurred during submission.");

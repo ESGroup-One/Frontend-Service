@@ -1,260 +1,223 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   FaSearch,
   FaEdit,
   FaTrash,
   FaChevronLeft,
   FaChevronRight,
-  FaEllipsisV
-} from 'react-icons/fa';
-import './Colleges.css';
+  FaEllipsisV,
+} from "react-icons/fa";
+import "./Colleges.css";
 
-import EditCollegeForm from '../../components/EditCollegeForm';
-import { COLLEGES_URL } from '../../constant';
+import EditCollegeForm from "../../components/EditCollegeForm";
+import { COLLEGES_URL } from "../../constant";
 
 const Colleges = () => {
-  const navigate = useNavigate()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedColleges, setSelectedColleges] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [openDropdown, setOpenDropdown] = useState(null)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedCollege, setSelectedCollege] = useState(null)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalColleges, setTotalColleges] = useState(0)
-  const collegesPerPage = 12
+  const navigate = useNavigate();
 
-  // Start with empty array - data will be loaded from API
-  const [collegesData, setCollegesData] = useState([])
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedColleges, setSelectedColleges] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedCollege, setSelectedCollege] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalColleges, setTotalColleges] = useState(0);
+  const [collegesData, setCollegesData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
-  const loadColleges = useCallback(async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(COLLEGES_URL, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
+  const collegesPerPage = 12;
 
-      if (Array.isArray(data)) {
-        const formattedColleges = data.map(college => ({
-          id: college.id,
-          name: college.collegeName || '',
-          admin: college.fullName || '',
-          adminEmail: college.email || '',
-          contactInfo: college.contactInfo || '',
-          appliedDate: 'N/A',
-          website: college.websiteUrl || ''
-        }));
+  const formatCollege = (college) => ({
+    id: college.id,
+    collegeName: college.collegeName || "",
+    fullName: college.fullName || "",
+    email: college.email || "",
+    contactInfo: college.contactInfo || "",
+    websiteUrl: college.websiteUrl || "",
+    name: college.collegeName || "",
+    admin: college.fullName || "",
+    adminEmail: college.email || "",
+    appliedDate: "N/A",
+    website: college.websiteUrl || "",
+  });
 
-        const filtered = searchTerm
-          ? formattedColleges.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const loadColleges = useCallback(
+    async ({ page = currentPage, search = searchTerm } = {}) => {
+      setLoading(true);
+
+      try {
+        const token =
+          localStorage.getItem("authToken") || localStorage.getItem("token");
+
+        const response = await fetch(COLLEGES_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || "Failed to load colleges.");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          setCollegesData([]);
+          setTotalColleges(0);
+          setTotalPages(1);
+          return;
+        }
+
+        const formattedColleges = data.map(formatCollege);
+
+        const filtered = search
+          ? formattedColleges.filter((college) =>
+            college.name.toLowerCase().includes(search.toLowerCase())
+          )
           : formattedColleges;
 
-        setCollegesData(filtered.slice((currentPage - 1) * collegesPerPage, currentPage * collegesPerPage));
+        const start = (page - 1) * collegesPerPage;
+        const end = page * collegesPerPage;
+
+        setCollegesData(filtered.slice(start, end));
         setTotalColleges(filtered.length);
         setTotalPages(Math.ceil(filtered.length / collegesPerPage) || 1);
+      } catch (error) {
+        toast.error(error.message || "Error loading colleges.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast.error("Error loading colleges");
-    }
-  }, [currentPage, searchTerm, collegesPerPage]);
+    },
+    [currentPage, searchTerm]
+  );
 
-  // Load colleges from API on component mount
   useEffect(() => {
-    loadColleges()
-  }, [loadColleges])
+    loadColleges();
+  }, [loadColleges]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Close dropdown if clicking anywhere outside the dropdown menus
-      if (!event.target.closest('.action-menu')) {
-        setOpenDropdown(null)
+    const closeDropdown = (event) => {
+      if (
+        !event.target.closest(".action-menu") &&
+        !event.target.closest(".dropdown-menu")
+      ) {
+        setOpenDropdown(null);
       }
-    }
+    };
 
-    document.addEventListener('mousedown', handleClickOutside)
+    const closeOnScrollOrResize = () => {
+      setOpenDropdown(null);
+    };
+
+    document.addEventListener("mousedown", closeDropdown);
+    window.addEventListener("resize", closeOnScrollOrResize);
+    window.addEventListener("scroll", closeOnScrollOrResize, true);
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", closeDropdown);
+      window.removeEventListener("resize", closeOnScrollOrResize);
+      window.removeEventListener("scroll", closeOnScrollOrResize, true);
+    };
+  }, []);
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedColleges(collegesData.map(college => college.id))
+      setSelectedColleges(collegesData.map((college) => college.id));
     } else {
-      setSelectedColleges([])
+      setSelectedColleges([]);
     }
-  }
+  };
 
   const handleSelectCollege = (collegeId) => {
-    setSelectedColleges(prev =>
+    setSelectedColleges((prev) =>
       prev.includes(collegeId)
-        ? prev.filter(id => id !== collegeId)
+        ? prev.filter((id) => id !== collegeId)
         : [...prev, collegeId]
-    )
-  }
+    );
+  };
 
   const handleAddCollege = () => {
-    navigate('/superadmin/AddCollegePage', { replace: false })
-  }
+    navigate("/superadmin/AddCollegePage", { replace: false });
+  };
 
   const handleDropdownToggle = (collegeId, event) => {
-    const newState = openDropdown === collegeId ? null : collegeId
-    setOpenDropdown(newState)
+    event.stopPropagation();
 
-    // If opening dropdown, check if it needs to be positioned upward
-    if (newState && event) {
-      setTimeout(() => {
-        const menuElement = event.currentTarget.closest('.action-menu')?.querySelector('.dropdown-menu')
-        if (menuElement) {
-          const rect = menuElement.getBoundingClientRect()
-          const viewportHeight = window.innerHeight
-
-          // If dropdown would overflow bottom of viewport, position it upward
-          if (rect.bottom > viewportHeight - 20) {
-            menuElement.classList.add('dropdown-menu-up')
-          } else {
-            menuElement.classList.remove('dropdown-menu-up')
-          }
-        }
-      }, 0)
+    if (openDropdown === collegeId) {
+      setOpenDropdown(null);
+      return;
     }
-  }
+
+    const triggerRect = event.currentTarget.getBoundingClientRect();
+    const menuWidth = 150;
+    const menuHeight = 96;
+    const gap = 8;
+
+    const hasSpaceBelow = window.innerHeight - triggerRect.bottom > menuHeight + gap;
+
+    const top = hasSpaceBelow
+      ? triggerRect.bottom + gap
+      : Math.max(12, triggerRect.top - menuHeight - gap);
+
+    const left = Math.min(
+      window.innerWidth - menuWidth - 12,
+      Math.max(12, triggerRect.right - menuWidth)
+    );
+
+    setDropdownPosition({ top, left });
+    setOpenDropdown(collegeId);
+  };
 
   const handleEdit = (collegeId) => {
-    const college = collegesData.find(c => c.id === collegeId)
+    const college = collegesData.find((item) => item.id === collegeId);
+
     if (college) {
-      setSelectedCollege(college)
-      setShowEditModal(true)
+      setSelectedCollege(college);
+      setShowEditModal(true);
     } else {
-      toast.error('College not found')
+      toast.error("College not found.");
     }
-    setOpenDropdown(null)
-  }
 
-  const handleUpdateCollege = async (updateData) => {
-    try {
-      await collegeAPI.update(selectedCollege.id, updateData)
-      toast.success('College updated successfully!')
+    setOpenDropdown(null);
+  };
 
-      // Reload colleges
-      setSearchTerm('')
-      const params = {
-        page: currentPage,
-        limit: collegesPerPage,
-        search: ''
-      }
-
-      collegeAPI.getAll(params).then(result => {
-        if (result.data && result.data.colleges) {
-          const formatDate = (dateString) => {
-            if (!dateString) return 'N/A'
-            try {
-              const date = new Date(dateString)
-              if (isNaN(date.getTime())) return 'N/A'
-              return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              })
-            } catch {
-              return 'N/A'
-            }
-          }
-
-          const formattedColleges = result.data.colleges.map(college => ({
-            id: college._id,
-            name: college.name || '',
-            admin: college.admin?.name || '',
-            adminEmail: college.admin?.email || '',
-            contactInfo: college.admin?.contactInfo || '',
-            appliedDate: formatDate(college.formattedAppliedDate || college.appliedDate || college.createdAt),
-            website: college.website || ''
-          }))
-          setCollegesData(formattedColleges)
-          setTotalPages(result.data.pagination?.totalPages || 1)
-          setTotalColleges(result.data.pagination?.totalColleges || 0)
-        }
-      }).catch(() => { })
-    } catch (error) {
-      toast.error(`Error updating college: ${error.message}`)
-      throw error
-    }
-  }
+  const handleUpdateCollege = async () => {
+    toast.success("College updated successfully.");
+    setShowEditModal(false);
+    setSelectedCollege(null);
+    await loadColleges();
+  };
 
   const handleCloseEditModal = () => {
-    setShowEditModal(false)
-    setSelectedCollege(null)
-  }
+    setShowEditModal(false);
+    setSelectedCollege(null);
+  };
 
   const handleDelete = async (collegeId) => {
-    // Custom confirmation dialog using toast
     const ConfirmDialog = ({ closeToast }) => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '300px' }}>
-        <p style={{ margin: 0 }}>Are you sure you want to delete this college?</p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
-          <button
-            style={{
-              padding: '8px 20px',
-              background: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-            onClick={async () => {
-              closeToast();
-              try {
-                await collegeAPI.delete(collegeId)
-                toast.success('College deleted successfully!')
+      <div className="confirm-dialog">
+        <div className="confirm-dialog-header">
+          <div className="confirm-dialog-icon">
+            <FaTrash />
+          </div>
+          <div>
+            <p className="confirm-dialog-title">Delete college?</p>
+            <p className="confirm-dialog-message">
+              This action cannot be undone.
+            </p>
+          </div>
+        </div>
 
-                // Reload colleges
-                setSearchTerm('')
-                const params = {
-                  page: currentPage,
-                  limit: collegesPerPage,
-                  search: ''
-                }
-
-                collegeAPI.getAll(params).then(result => {
-                  if (result.data && result.data.colleges) {
-                    const formattedColleges = result.data.colleges.map(college => ({
-                      id: college._id,
-                      name: college.name || '',
-                      admin: college.admin?.name || '',
-                      adminEmail: college.admin?.email || '',
-                      contactInfo: college.admin?.contactInfo || '',
-                      appliedDate: college.formattedAppliedDate || college.appliedDate || '',
-                      website: college.website || ''
-                    }))
-                    setCollegesData(formattedColleges)
-                    setTotalPages(result.data.pagination?.totalPages || 1)
-                    setTotalColleges(result.data.pagination?.totalColleges || 0)
-                  }
-                }).catch(() => { })
-              } catch (error) {
-                toast.error(`Error deleting college: ${error.message}`)
-              }
-              setOpenDropdown(null)
-            }}
-          >
-            Yes, Delete
-          </button>
+        <div className="confirm-dialog-actions">
           <button
-            style={{
-              padding: '8px 20px',
-              background: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
+            type="button"
+            className="confirm-dialog-btn confirm-dialog-cancel"
             onClick={() => {
               closeToast();
               setOpenDropdown(null);
@@ -262,20 +225,57 @@ const Colleges = () => {
           >
             Cancel
           </button>
+
+          <button
+            type="button"
+            className="confirm-dialog-btn confirm-dialog-delete"
+            onClick={async () => {
+              closeToast();
+
+              try {
+                const token =
+                  localStorage.getItem("authToken") || localStorage.getItem("token");
+
+                const response = await fetch(`${COLLEGES_URL}/${collegeId}`, {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  throw new Error(errorText || "Failed to delete college.");
+                }
+
+                toast.success("College deleted successfully.");
+                setSelectedColleges((prev) => prev.filter((id) => id !== collegeId));
+                setSearchTerm("");
+                setCurrentPage(1);
+                await loadColleges({ page: 1, search: "" });
+              } catch (error) {
+                toast.error(error.message || "Error deleting college.");
+              } finally {
+                setOpenDropdown(null);
+              }
+            }}
+          >
+            Delete
+          </button>
         </div>
       </div>
     );
 
-    toast.info(<ConfirmDialog />, {
+    toast(<ConfirmDialog />, {
       position: "top-center",
       autoClose: false,
       closeOnClick: false,
       closeButton: true,
+      icon: false,
     });
-  }
+  };
 
-  // Search is now handled by the backend API
-  const filteredColleges = collegesData
+  const filteredColleges = collegesData;
 
   return (
     <>
@@ -289,13 +289,17 @@ const Colleges = () => {
             <button className="add-college-btn" onClick={handleAddCollege}>
               + Add College
             </button>
+
             <div className="search-container">
               <FaSearch className="search-icon" />
               <input
                 type="text"
                 placeholder="Search Colleges"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="search-input"
               />
             </div>
@@ -310,7 +314,10 @@ const Colleges = () => {
                   <input
                     type="checkbox"
                     onChange={handleSelectAll}
-                    checked={selectedColleges.length === collegesData.length}
+                    checked={
+                      collegesData.length > 0 &&
+                      selectedColleges.length === collegesData.length
+                    }
                   />
                 </th>
                 <th>Colleges Name</th>
@@ -321,60 +328,84 @@ const Colleges = () => {
                 <th>Action</th>
               </tr>
             </thead>
+
             <tbody>
-              {filteredColleges.map((college) => (
-                <tr key={college.id}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedColleges.includes(college.id)}
-                      onChange={() => handleSelectCollege(college.id)}
-                    />
-                  </td>
-                  <td>{college.name}</td>
-                  <td>{college.admin}</td>
-                  <td>{college.adminEmail}</td>
-                  <td>{college.contactInfo}</td>
-                  <td>{college.appliedDate}</td>
-                  <td>
-                    <div className="action-menu">
-                      <button
-                        className="menu-trigger"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDropdownToggle(college.id, e)
-                        }}
-                      >
-                        <FaEllipsisV />
-                      </button>
-                      {openDropdown === college.id && (
-                        <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            className="dropdown-item edit-item"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleEdit(college.id)
-                            }}
-                          >
-                            <FaEdit className="dropdown-icon" />
-                            Edit
-                          </button>
-                          <button
-                            className="dropdown-item delete-item"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDelete(college.id)
-                            }}
-                          >
-                            <FaTrash className="dropdown-icon" />
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: "center", padding: "24px" }}>
+                    Loading colleges...
                   </td>
                 </tr>
-              ))}
+              ) : filteredColleges.length === 0 ? (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: "center", padding: "24px" }}>
+                    No colleges found.
+                  </td>
+                </tr>
+              ) : (
+                filteredColleges.map((college) => (
+                  <tr key={college.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedColleges.includes(college.id)}
+                        onChange={() => handleSelectCollege(college.id)}
+                      />
+                    </td>
+                    <td>{college.name}</td>
+                    <td>{college.admin}</td>
+                    <td>{college.adminEmail}</td>
+                    <td>{college.contactInfo}</td>
+                    <td>{college.appliedDate}</td>
+                    <td>
+                      <div className="action-menu">
+                        <button
+                          className="menu-trigger"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDropdownToggle(college.id, e);
+                          }}
+                        >
+                          <FaEllipsisV />
+                        </button>
+
+                        {openDropdown === college.id && (
+                          <div
+                            className="dropdown-menu"
+                            style={{
+                              top: `${dropdownPosition.top}px`,
+                              left: `${dropdownPosition.left}px`,
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              className="dropdown-item edit-item"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(college.id);
+                              }}
+                            >
+                              <FaEdit className="dropdown-icon" />
+                              Edit
+                            </button>
+
+                            <button
+                              className="dropdown-item delete-item"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(college.id);
+                              }}
+                            >
+                              <FaTrash className="dropdown-icon" />
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -383,38 +414,46 @@ const Colleges = () => {
           <div className="pagination-info">
             <span>{collegesPerPage} Colleges per page</span>
           </div>
+
           <div className="pagination-controls">
             <button
               className="pagination-btn"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
               <FaChevronLeft />
             </button>
+
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let pageNum
+              let pageNum;
+
               if (totalPages <= 5) {
-                pageNum = i + 1
+                pageNum = i + 1;
               } else if (currentPage <= 3) {
-                pageNum = i + 1
+                pageNum = i + 1;
               } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i
+                pageNum = totalPages - 4 + i;
               } else {
-                pageNum = currentPage - 2 + i
+                pageNum = currentPage - 2 + i;
               }
+
               return (
                 <button
                   key={pageNum}
-                  className={`pagination-btn ${currentPage === pageNum ? 'active' : ''}`}
+                  className={`pagination-btn ${currentPage === pageNum ? "active" : ""
+                    }`}
                   onClick={() => setCurrentPage(pageNum)}
                 >
                   {pageNum}
                 </button>
-              )
+              );
             })}
+
             <button
               className="pagination-btn"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
               disabled={currentPage === totalPages}
             >
               <FaChevronRight />
@@ -423,16 +462,16 @@ const Colleges = () => {
         </div>
       </div>
 
-      {/* Edit College Modal */}
       <EditCollegeForm
         isOpen={showEditModal}
         onClose={handleCloseEditModal}
         onSubmit={handleUpdateCollege}
         collegeData={selectedCollege}
       />
+
       <ToastContainer position="top-right" autoClose={3000} />
     </>
-  )
-}
+  );
+};
 
-export default Colleges
+export default Colleges;
