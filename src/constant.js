@@ -40,6 +40,7 @@ export const MY_COURSE_COUNT_URL = `${COURSES_URL}/my-count`;
 export const RECOMMENDATIONS_BASE = `${REPO_BASE}/recommendations`;
 export const GET_STUDENT_RECOMMENDATIONS_URL = (studentId) => `${RECOMMENDATIONS_BASE}/student/${studentId}`;
 
+// Analysis 
 export const SUPERADMIN_ANALYTICS_URL = `${REPO_BASE}/analytics/superadmin`;
 export const ADMIN_ANALYTICS_URL = `${REPO_BASE}/analytics/admin`;
 export const ADMIN_RECENT_APPLICATIONS_URL = `${REPO_BASE}/analytics/admin/recent-applications`;
@@ -53,3 +54,5 @@ export const MY_APPLICATIONS_URL = `${PLACEMENT_BASE}/my`;
 export const PLACEMENT_STATUS_URL = `${PLACEMENT_BASE}/placement-status`;
 export const APPLICATION_STATUS_HISTORY_URL = (applicationId) => `${PLACEMENT_BASE}/${applicationId}/history`;
 export const UPDATE_APPLICATION_STATUS_URL = (applicationId) => `${PLACEMENT_BASE}/${applicationId}/status`;
+
+
