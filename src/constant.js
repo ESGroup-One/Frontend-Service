@@ -1,4 +1,7 @@
+import axios from 'axios';
+
 export const BASE_URL = `https://145d-220-158-237-109.ngrok-free.app`;
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
 
 // Auth Service
 export const AUTH_BASE = `${BASE_URL}/authservice/api/auth`;
