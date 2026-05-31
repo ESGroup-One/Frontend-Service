@@ -3,14 +3,13 @@ import {
   FaBuilding,
   FaUsers,
   FaBookOpen,
-  FaEye,
   FaFileAlt,
   FaGlobe,
   FaPhone
 } from 'react-icons/fa';
 import './SuperAdminDashboard.css';
 
-import { USER_COUNTS_URL, ALL_COURSES_URL, COLLEGES_URL } from '../../constant'
+import { USER_COUNTS_URL, ALL_COURSES_URL, COLLEGES_URL, SUPERADMIN_ANALYTICS_URL } from '../../constant';
 
 const SuperAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -20,18 +19,21 @@ const SuperAdminDashboard = () => {
     totalUsers: 0,
     coursesViews: 0,
     coursesApplied: 0,
-    activeCourses: 0
+    activeCourses: 0,
+    higherEducationGrants: 0
   });
   const [recentCourses, setRecentCourses] = useState([]);
   const [recentColleges, setRecentColleges] = useState([]);
+
+  // Updated initial structure to expect rolling 'date' keys
   const [chartData, setChartData] = useState([
-    { day: 'Mon', views: 0, applied: 0 },
-    { day: 'Tue', views: 0, applied: 0 },
-    { day: 'Wed', views: 0, applied: 0 },
-    { day: 'Thu', views: 0, applied: 0 },
-    { day: 'Fri', views: 0, applied: 0 },
-    { day: 'Sat', views: 0, applied: 0 },
-    { day: 'Sun', views: 0, applied: 0 }
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 },
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 },
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 },
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 },
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 },
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 },
+    { date: 'Loading...', grantCount: 0, selfFinanceCount: 0 }
   ]);
 
   useEffect(() => {
@@ -84,6 +86,26 @@ const SuperAdminDashboard = () => {
             contactInfo: col.contactInfo
           })));
         }
+
+        const analyticsRes = await fetch(SUPERADMIN_ANALYTICS_URL, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const analyticsData = await analyticsRes.json();
+
+        if (analyticsData && analyticsData.summary) {
+          setStats(prev => ({
+            ...prev,
+            coursesViews: analyticsData.summary.totalPlaced,
+            coursesApplied: analyticsData.summary.totalApplications,
+            higherEducationGrants: analyticsData.summary.higherEducationGrants,
+            selfFinanced: analyticsData.summary.selfFinancedApplications
+          }));
+        }
+
+        if (analyticsData && Array.isArray(analyticsData.weeklyChart)) {
+          setChartData(analyticsData.weeklyChart);
+        }
+
       } catch (error) {
         console.error('Dashboard Load Error:', error);
       } finally {
@@ -94,7 +116,22 @@ const SuperAdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const maxValue = Math.max(...chartData.map(d => d.views + d.applied), 1);
+  const staticTicks = [20, 15, 10, 5, 0];
+
+  const realMaxVal = Math.max(
+    ...chartData.map(d => Math.max(d.grantCount || 0, d.selfFinanceCount || 0)),
+    0
+  );
+
+  const maxValue = realMaxVal > 20 ? Math.ceil(realMaxVal / 5) * 5 : 20;
+
+  const yAxisTicks = maxValue > 20
+    ? Array.from({ length: (maxValue / 5) + 1 }, (_, i) => maxValue - (i * 5))
+    : staticTicks;
+
+  if (loading) {
+    return <div className="dashboard-loading">Loading system records...</div>;
+  }
 
   return (
     <>
@@ -132,59 +169,105 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        {/* <div className="middle-section">
-
+        <div className="middle-section">
           <div className="application-stats-card">
             <div className="card-header">
               <h3 className="card-title">Application</h3>
               <p className="card-subtitle">Showing Application statistics</p>
             </div>
+
             <div className="bar-chart-container">
-              <div className="bar-chart">
-                {chartData.map((data, index) => (
-                  <div key={index} className="bar-group">
-                    <div className="bars">
-                      <div
-                        className="bar bar-views"
-                        style={{ height: `${(data.views / maxValue) * 100}%` }}
-                      ></div>
-                      <div
-                        className="bar bar-applied"
-                        style={{ height: `${(data.applied / maxValue) * 100}%` }}
-                      ></div>
+              <div className="chart-wrapper-with-y-axis">
+
+                {/* Fixed Dynamic Step Y-Axis Labels */}
+                <div className="y-axis-labels">
+                  {yAxisTicks.map((tick, i) => (
+                    <span key={i}>{tick}</span>
+                  ))}
+                </div>
+
+                <div className="chart-and-x-axis-container">
+                  {/* Chart Plot Workspace Canvas */}
+                  <div className="bar-chart">
+
+                    {/* Synchronized Background Horizontal Gridlines */}
+                    <div className="chart-grid-lines">
+                      {yAxisTicks.map((_, i) => (
+                        <div
+                          key={i}
+                          className={`grid-line ${i === yAxisTicks.length - 1 ? 'base-line' : ''}`}
+                        ></div>
+                      ))}
                     </div>
-                    <div className="bar-label">{data.day}</div>
+
+                    {/* Chart Bars Render Loop */}
+                    {chartData.map((data, index) => (
+                      <div key={index} className="bar-group">
+                        <div className="bars">
+                          <div
+                            className="bar bar-views"
+                            style={{ height: `${((data.grantCount || 0) / maxValue) * 100}%` }}
+                            title={`Grants: ${data.grantCount}`}
+                          >
+                            {/* {data.grantCount > 0 && (
+                              <span className="bar-tooltip-val">{data.grantCount}</span>
+                            )} */}
+                          </div>
+                          <div
+                            className="bar bar-applied"
+                            style={{ height: `${((data.selfFinanceCount || 0) / maxValue) * 100}%` }}
+                            title={`Self-Financed: ${data.selfFinanceCount}`}
+                          >
+                            {/* {data.selfFinanceCount > 0 && (
+                              <span className="bar-tooltip-val">{data.selfFinanceCount}</span>
+                            )} */}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+
+                  {/* Clean Downsized X-Axis Timelines Wrapper Row */}
+                  <div className="x-axis-labels-row">
+                    {chartData.map((data, index) => (
+                      <div key={index} className="x-axis-date-label">
+                        {data.date}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
+
+              {/* Chart Color Legends Info */}
               <div className="chart-legend">
                 <div className="legend-item">
                   <div className="legend-color legend-views"></div>
-                  <span>Courses View</span>
+                  <span>Higher Grant Applications</span>
                 </div>
                 <div className="legend-item">
                   <div className="legend-color legend-applied"></div>
-                  <span>Courses Applied</span>
+                  <span>Self-Financed Applications</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="summary-cards-container">
-            <div className="date-range">13 August - 30 September</div>
+            {/* <div className="date-range">Recent Activity Range</div> */}
             <div className="summary-cards">
               <div className="summary-card">
                 <div className="summary-content">
-                  <div className="summary-label">Courses Views</div>
+                  <div className="summary-label">Placed Candidates</div>
                   <div className="summary-number">{loading ? '...' : stats.coursesViews}</div>
                 </div>
                 <div className="summary-icon">
-                  <FaEye />
+                  <FaUsers />
                 </div>
               </div>
               <div className="summary-card">
                 <div className="summary-content">
-                  <div className="summary-label">Courses Applied</div>
+                  <div className="summary-label">Total Applications</div>
                   <div className="summary-number">{loading ? '...' : stats.coursesApplied}</div>
                 </div>
                 <div className="summary-icon">
@@ -196,29 +279,25 @@ const SuperAdminDashboard = () => {
 
           <div className="cards-column">
             <div className="active-courses-card">
-              <h3 className="card-title">Active Courses</h3>
+              <h3 className="card-title">Application Count</h3>
               <div className="active-courses-content">
-                <div className="active-number">{loading ? '...' : stats.activeCourses}</div>
-                <div className="active-label">Registration Opened</div>
+                <div className="active-number">{loading ? '...' : stats.selfFinanced}</div>
+                <div className="active-label">Self Financed</div>
               </div>
             </div>
 
             <div className="application-type-card">
-              <h3 className="card-title">Application Type</h3>
+              <h3 className="card-title">Application Count</h3>
               <div className="application-type-content">
                 <div className="type-number-label-wrapper">
-                  <div className="type-number">{loading ? '...' : stats.coursesApplied}</div>
+                  <div className="type-number">{loading ? '...' : (stats.higherEducationGrants || 0)}</div>
                   <div className="type-label">Higher Education Grant</div>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: stats.coursesApplied > 0 ? '75%' : '0%' }}></div>
                 </div>
               </div>
             </div>
           </div>
-        </div> */}
+        </div>
 
-        {/* Recently Registered Colleges
         <div className="recent-courses-section">
           <h3 className="section-title">Recently Registered Colleges</h3>
           <div className="recent-courses-grid">
@@ -291,11 +370,11 @@ const SuperAdminDashboard = () => {
               ))}
             </div>
           </div>
-        )} */}
-        
+        )}
+
       </div>
     </>
-  )
-}
+  );
+};
 
 export default SuperAdminDashboard;
