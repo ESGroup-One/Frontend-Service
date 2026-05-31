@@ -375,6 +375,7 @@ export default function ForgotPassword() {
               <label htmlFor="password" className="form-label">
                 Password
               </label>
+              <div className="password-field">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -408,6 +409,7 @@ export default function ForgotPassword() {
                   <Eye size={20} color="#777" />
                 )}
               </button>
+              </div>
               {errors.password && (
                 <p className="error-message">{errors.password}</p>
               )}
@@ -417,6 +419,7 @@ export default function ForgotPassword() {
               <label htmlFor="confirmPassword" className="form-label">
                 Confirm Password
               </label>
+              <div className="password-field">
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"
@@ -452,6 +455,7 @@ export default function ForgotPassword() {
                   <Eye size={20} color="#777" />
                 )}
               </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="error-message">{errors.confirmPassword}</p>
               )}
