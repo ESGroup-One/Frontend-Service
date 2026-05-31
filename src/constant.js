@@ -1,4 +1,4 @@
-export const BASE_URL = `http://localhost:8081`;
+export const BASE_URL = `https://145d-220-158-237-109.ngrok-free.app`;
 
 // Auth Service
 export const AUTH_BASE = `${BASE_URL}/authservice/api/auth`;
