@@ -144,7 +144,7 @@
 
 .password-field-toggle {
   position: absolute;
-  top: 70%;
+  top: 75% !important;
   right: 14px;
   transform: translateY(-50%);
   width: 24px;
