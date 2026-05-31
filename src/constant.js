@@ -1,7 +1,18 @@
-import axios from 'axios';
-
 export const BASE_URL = `https://145d-220-158-237-109.ngrok-free.app`;
-axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
+
+if (typeof window !== 'undefined') {
+  const originalFetch = window.fetch;
+  window.fetch = async function (url, options = {}) {
+    // Only intercept requests going to your ngrok server
+    if (typeof url === 'string' && url.includes('ngrok-free.app')) {
+      options.headers = {
+        ...options.headers,
+        'ngrok-skip-browser-warning': 'true',
+      };
+    }
+    return originalFetch.retain ? originalFetch.retain(url, options) : originalFetch(url, options);
+  };
+}
 
 // Auth Service
 export const AUTH_BASE = `${BASE_URL}/authservice/api/auth`;
