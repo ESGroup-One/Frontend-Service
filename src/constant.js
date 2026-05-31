@@ -1,10 +1,18 @@
 import axios from 'axios';
 
+// 1. Define your base ngrok link
 export const BASE_URL = `https://145d-220-158-237-109.ngrok-free.app`;
 
+// 2. Automated global AXIOS Setup (Interceptor & Defaults)
 axios.interceptors.request.use((config) => {
   if (config.url && (config.url.includes('ngrok-free.app') || config.url.startsWith('/'))) {
     config.headers['ngrok-skip-browser-warning'] = 'true';
+    
+    // Auto-inject your authentication token if it exists in your browser storage
+    const token = localStorage.getItem('token'); 
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
   }
   return config;
 }, (error) => {
@@ -12,6 +20,27 @@ axios.interceptors.request.use((config) => {
 });
 
 axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
+
+
+// 3. Automated global FETCH Interceptor Patch (For components using raw fetch)
+if (typeof window !== 'undefined') {
+  const originalFetch = window.fetch;
+  window.fetch = async function (url, options = {}) {
+    if (typeof url === 'string' && url.includes('ngrok-free.app')) {
+      options.headers = {
+        ...options.headers,
+        'ngrok-skip-browser-warning': 'true',
+      };
+      
+      // Auto-inject your authentication token into raw fetch headers
+      const token = localStorage.getItem('token');
+      if (token && !options.headers['Authorization']) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    return originalFetch(url, options);
+  };
+}
 
 // Auth Service
 export const AUTH_BASE = `${BASE_URL}/authservice/api/auth`;
