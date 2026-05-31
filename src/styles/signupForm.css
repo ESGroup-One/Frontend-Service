@@ -1,3 +1,7 @@
+.form-group button[type="button"] {
+    top: 75% !important;
+}
+
 .login-container {
   min-height: 100vh;
   display: flex;
